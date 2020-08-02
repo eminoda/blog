@@ -10,7 +10,9 @@ module.exports = (appInfo) => {
    * built-in config
    * @type {Egg.EggAppConfig}
    **/
-  const config = (exports = {});
+  const config = {
+    env: 'xx',
+  };
 
   // use for cookie sign key, should change to your own and keep security
   config.keys = appInfo.name + '_1596353041082_475';
@@ -18,6 +20,9 @@ module.exports = (appInfo) => {
   // add your middleware config here
   config.middleware = ['koaStatic', 'ssrRender'];
 
+  config.ssrRender = {
+    title: 'eminoda blog',
+  };
   // add your user config here
   const userConfig = {
     // myAppName: 'egg',

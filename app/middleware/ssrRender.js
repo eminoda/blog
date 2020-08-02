@@ -9,7 +9,7 @@ const { createBundleRenderer } = require('vue-server-renderer');
 const clientConfig = require('../../build/client');
 const serverConfig = require('../../build/server');
 
-const readFileInDist = function (file) {
+const readFileInDist = function(file) {
   return fs.readFileSync(path.join(__dirname, '../../dist', file), 'utf-8');
 };
 const readFileByWebpackOutputPath = (fs, file) => {
@@ -30,9 +30,8 @@ const serverCompiler = webpack(serverConfig);
 const mfs = new MFS();
 serverCompiler.outputFileSystem = mfs;
 
-let template = fs.readFileSync(path.join(__dirname, '../../src/index.template.html'), 'utf-8');
-
-module.exports = () => {
+module.exports = (options, config) => {
+  let template;
   let clientManifest;
   let bundle;
   let ready;
@@ -46,52 +45,61 @@ module.exports = () => {
     }
   };
 
-  clientCompiler.plugin('done', (stats) => {
-    stats = stats.toJson();
-    stats.errors.forEach((err) => console.error(err));
-    stats.warnings.forEach((err) => console.warn(err));
-    if (stats.errors.length) return;
-    clientManifest = JSON.parse(readFileByWebpackOutputPath(devMiddleware.fileSystem, 'vue-ssr-client-manifest.json'));
-    update();
-  });
-  serverCompiler.watch({}, (err, stats) => {
-    if (err) throw err;
-    stats = stats.toJson();
-    if (stats.errors.length) return;
-    bundle = JSON.parse(readFileByWebpackOutputPath(mfs, 'vue-ssr-server-bundle.json'));
-    update();
-  });
-  return async function (ctx, next) {
-    // await next();
-    // TODO: env 判断
-    // const bundle = JSON.parse(readFileInDist('vue-ssr-server-bundle.json'));
-    // const clientManifest = JSON.parse(readFileInDist('vue-ssr-client-manifest.json'));
-    // const template = fs.readFileSync(path.join(__dirname, '../../src/index.template.html'), 'utf-8');
+  if (config.env == 'local') {
+    template = fs.readFileSync(path.join(__dirname, '../../src/index.template.html'), 'utf-8');
+    clientCompiler.plugin('done', (stats) => {
+      stats = stats.toJson();
+      stats.errors.forEach((err) => console.error(err));
+      stats.warnings.forEach((err) => console.warn(err));
+      if (stats.errors.length) return;
+      clientManifest = JSON.parse(readFileByWebpackOutputPath(devMiddleware.fileSystem, 'vue-ssr-client-manifest.json'));
+      update();
+    });
+    serverCompiler.watch({}, (err, stats) => {
+      if (err) throw err;
+      stats = stats.toJson();
+      if (stats.errors.length) return;
+      bundle = JSON.parse(readFileByWebpackOutputPath(mfs, 'vue-ssr-server-bundle.json'));
+      update();
+    });
+  } else {
+    bundle = JSON.parse(readFileInDist('vue-ssr-server-bundle.json'));
+    clientManifest = JSON.parse(readFileInDist('vue-ssr-client-manifest.json'));
+    template = fs.readFileSync(path.join(__dirname, '../../src/index.template.html'), 'utf-8');
+  }
 
+  return async function(ctx, next) {
     const { clientManifest, bundle } = await readyPromise;
-    // TODO: 动态配置
     const context = {
-      title: 'Vue HN 2.0',
+      title: options.title,
       url: ctx.path,
     };
     try {
       ctx.body = await ssrRender({ bundle, template, clientManifest, context });
     } catch (err) {
-      // prod 不需要判断
-      if (err.code == 404) {
-        if (ctx.path == '/__webpack_hmr') {
-          console.log('__webpack_hmr');
-          await webpackHotMiddlewareWrap(ctx, clientCompiler, { heartbeat: 5000 });
-        } else {
-          await devMiddlewareWrap(ctx);
-        }
-      } else {
+      if (config.env == 'prod') {
         await next();
+      } else {
+        if (err.code == 404) {
+          if (ctx.path == '/__webpack_hmr') {
+            webpackHotMiddlewareWrap(ctx, clientCompiler, { heartbeat: 5000 });
+          } else {
+            await devMiddlewareWrap(ctx);
+            await next();
+          }
+        } else {
+          throw err;
+        }
       }
     }
   };
 };
 
+/**
+ * ssr 渲染方法
+ * 参考：[bundle renderer 指引](https://ssr.vuejs.org/zh/guide/bundle-renderer.html)
+ *
+ */
 function ssrRender({ template, clientManifest, bundle, context }) {
   return new Promise((resolve, reject) => {
     try {
@@ -113,6 +121,9 @@ function ssrRender({ template, clientManifest, bundle, context }) {
   });
 }
 
+/**
+ * 通过 webpack-dev-middleware 中间件，在开发环境中返回内存中客户端的资源文件
+ */
 function devMiddlewareWrap(ctx) {
   return new Promise((resolve, reject) => {
     devMiddleware(
@@ -131,10 +142,13 @@ function devMiddlewareWrap(ctx) {
   });
 }
 
+/**
+ * 通过 webpack-hot-middleware 中间件解析 socket 热更新请求
+ */
 function webpackHotMiddlewareWrap(ctx, compiler, opts) {
   let stream = new PassThrough();
   ctx.body = stream;
-  return webpackHotMiddleware(compiler, opts)(
+  webpackHotMiddleware(compiler, opts)(
     ctx.req,
     {
       write: stream.write.bind(stream),
@@ -147,8 +161,8 @@ function webpackHotMiddlewareWrap(ctx, compiler, opts) {
         ctx.set(headers);
       },
       end: () => {
-        // ctx.res.end();
-        ctx.body = '';
+        ctx.res.end();
+        // ctx.body = '';
       },
     },
     () => {}
