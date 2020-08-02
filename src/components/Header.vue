@@ -1,0 +1,48 @@
+<template>
+  <a-layout-header>
+    <div class="header">
+      <div class="logo">NextInnovation</div>
+      <a-menu
+        theme="dark"
+        mode="horizontal"
+        :default-selected-keys="['2']"
+        :style="{ lineHeight: '64px' }"
+      >
+        <a-menu-item v-for="item in menus" :key="item.id">{{
+          item.name
+        }}</a-menu-item>
+      </a-menu>
+    </div>
+  </a-layout-header>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      menus: [
+        { id: 1, name: '首页' },
+        { id: 2, name: '标签' },
+        { id: 3, name: '分类' },
+        { id: 4, name: '归档' },
+      ]
+    }
+  }
+}
+</script>
+
+<style scoped lang="scss">
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 1000px;
+  margin: auto;
+  .logo {
+    background-color: #fff;
+    color: #333;
+    font-size: 20px;
+    padding: 0 10px;
+  }
+}
+</style>

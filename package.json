@@ -7,6 +7,7 @@
     "declarations": true
   },
   "dependencies": {
+    "ant-design-vue": "^1.6.4",
     "egg": "^2.15.1",
     "egg-scripts": "^2.11.0",
     "koa-static": "^5.0.0",
