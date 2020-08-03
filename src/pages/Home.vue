@@ -1,22 +1,19 @@
 <template>
-  <div class="wrap">
+  <content-layout>
     <posts />
     <div>
       <router-link to="/user">user </router-link>
     </div>
-  </div>
+  </content-layout>
 </template>
 
 <script>
 import Posts from '../components/post/Posts'
+import ContentLayout from '../components/layout/ContentLayout'
 export default {
-  components: { Posts }
+  components: { ContentLayout, Posts }
 }
 </script>
 
 <style lang="scss" scoped>
-.wrap {
-  width: 1000px;
-  margin: 30px auto;
-}
 </style>

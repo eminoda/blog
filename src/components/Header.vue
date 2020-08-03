@@ -3,6 +3,7 @@
     <div class="header">
       <div class="logo">NextInnovation</div>
       <a-menu
+        class="menu-wrap"
         theme="dark"
         mode="horizontal"
         :default-selected-keys="['2']"
@@ -43,6 +44,10 @@ export default {
     color: #333;
     font-size: 20px;
     padding: 0 10px;
+  }
+  .menu-wrap {
+    width: 100%;
+    text-align: center;
   }
 }
 </style>

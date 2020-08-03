@@ -75,6 +75,9 @@ module.exports = (options, config) => {
       url: ctx.path,
     };
     try {
+      if (config.env == 'local') {
+        await devMiddlewareWrap(ctx);
+      }
       ctx.body = await ssrRender({ bundle, template, clientManifest, context });
     } catch (err) {
       if (config.env == 'prod') {
@@ -84,7 +87,6 @@ module.exports = (options, config) => {
           if (ctx.path == '/__webpack_hmr') {
             webpackHotMiddlewareWrap(ctx, clientCompiler, { heartbeat: 5000 });
           } else {
-            await devMiddlewareWrap(ctx);
             await next();
           }
         } else {
@@ -131,13 +133,15 @@ function devMiddlewareWrap(ctx) {
       {
         end: (content) => {
           ctx.body = content;
-          resolve(true);
+          resolve(content);
         },
         getHeader: ctx.get.bind(ctx),
         setHeader: ctx.set.bind(ctx),
         locals: ctx.state,
       },
-      () => {}
+      () => {
+        resolve();
+      }
     );
   });
 }

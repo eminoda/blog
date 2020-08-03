@@ -14,7 +14,7 @@ module.exports = merge(webpackBaseConfig, {
   },
   output: {
     path: path.resolve(__dirname, '../dist'), // The output directory as **absolute path** (required)
-    publicPath: '',
+    publicPath: '/dist/',
     filename: '[name].js',
   },
   plugins: [new VueSSRClientPlugin()],

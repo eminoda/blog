@@ -1,8 +1,10 @@
 <template>
-  <a-list item-layout="horizontal" :data-source="data">
+  <a-list item-layout="horizontal" :data-source="data" class="list-wrap">
     <a-list-item slot="renderItem" slot-scope="item">
       <a-list-item-meta>
-        <a slot="title" href="https://www.antdv.com/">{{ item.title }}</a>
+        <router-link slot="title" :to="{ path: '/post/123' }" class="title">{{
+          item.title
+        }}</router-link>
         <div slot="description">
           <div>
             <a-tag color="pink">
@@ -12,7 +14,7 @@
               ssr
             </a-tag>
           </div>
-          <div>2020-8-3 00:53:10</div>
+          <div class="date">2020-8-3 00:53:10</div>
         </div>
       </a-list-item-meta>
       <img
@@ -48,5 +50,15 @@ export default {
 }
 </script>
 
-<style>
+<style scoped lang="scss">
+.list-wrap {
+  .ant-list-item-meta-title {
+    font-size: 20px;
+    margin-bottom: 15px;
+  }
+  .date {
+    margin-top: 5px;
+    font-size: 14px;
+  }
+}
 </style>

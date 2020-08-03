@@ -1,15 +1,8 @@
 <template>
   <div id="app">
-    <a-layout>
+    <a-layout class="wrap">
       <Header />
-      <a-layout-content
-        :style="{
-          background: '#fff',
-          padding: '24px',
-          margin: 0,
-          minHeight: '280px'
-        }"
-      >
+      <a-layout-content>
         <router-view class="view"></router-view>
       </a-layout-content>
       <a-layout-footer>Footer</a-layout-footer>
@@ -24,3 +17,9 @@ export default {
   components: { Header }
 }
 </script>
+<style>
+.wrap {
+  background-color: #f4f5f5;
+  margin: auto;
+}
+</style>
