@@ -22,5 +22,12 @@ eminoda 的博客
 
 - [ ] 博客搬迁
 
-  - [ ] 解析旧博客内容
-  - [ ] 迁移至 mongodb 数据库
+  - [ ] 爬取文章列表，存储文章基础数据 /admin/spider/posts
+  - [ ] 根据 post.id 存储文章（单个/批量） /admin/transfer/posts/:name
+    - [ ] 查询文章内容 getPostByName
+    - [ ] 解析 tag，category 内容 parseKeyWord
+    - [ ] 解析资源地址，批量存储到服务器 parseAssertImage saveAssertImage
+    - [ ] 存储 md 源文件 saveOriginMD
+    - [ ] 更新发布时间 updatePostById
+
+- [ ] 在线编辑
