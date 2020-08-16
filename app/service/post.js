@@ -1,6 +1,16 @@
 const Service = require('egg').Service;
 
 class PostService extends Service {
+  async getPosts(page = 1, pageSize = 10) {
+    const { ctx, service } = this;
+    return ctx.model.Post.find({})
+      .skip(Number((page - 1) * pageSize))
+      .limit(Number(pageSize));
+  }
+  async getPostById(id) {
+    const { ctx, service } = this;
+    return ctx.model.Post.findById(id);
+  }
   async addPosts(posts) {
     const { ctx, service } = this;
     const promisePosts = [];

@@ -1,42 +1,28 @@
 <template>
   <content-layout>
-    <div class="markdown-body">
-      <h2 id="动态路由">动态路由</h2>
-      <p>
-        即使不是 SSR 服务端渲染，SPA
-        也可以通过权限的控制，以动态路由的方式实现。
-      </p>
-      <p>
-        比如当前页面，你无法从以往约定的 router
-        结构中找到，路由结构将通过后端接口解析生成。
-      </p>
-      <p><strong>怎么做呢？</strong></p>
-      <p>
-        每次路由跳转时，通过 beforeEach 路由拦截，请求后端获取当前 user
-        的路由权限，并加入到 vue 的 router 结构中，形成新的路由体系：
-      </p>
-      <pre>
-        <code class="language-js">// 路由拦截
-router.beforeEach((to, from, next) => {
-  const _vue = router.app;
-  fetchDynamicRoutes()
-    .then((dynamicRoutes) => {
-      // 组装新路由
-      const routes = helper.generatorRoutes(dynamicRoutes);
-      _vue.$router.addRoutes(routes);
-      next();
-    })
-    .catch((err) => {});
-});</code>
-      </pre>
+    <div class="markdown-body" v-html="htmlData">
     </div>
   </content-layout>
 </template>
 
 <script>
+import Http from '../utils/Http.js'
 import ContentLayout from '../components/layout/ContentLayout'
 export default {
-  components: { ContentLayout }
+  components: { ContentLayout },
+  data(){
+    return {
+      htmlData:''
+    }
+  },
+  created() {
+    const self = this;
+    new Http().request({
+      url: `/posts/${this.$route.params.id}`
+    }).then(data => {
+      self.htmlData = data
+    }).catch(err => { })
+  }
 }
 </script>
 

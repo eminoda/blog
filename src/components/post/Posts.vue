@@ -1,10 +1,13 @@
 <template>
-  <a-list item-layout="horizontal" :data-source="data" class="list-wrap">
+  <a-list item-layout="horizontal" :data-source="list" class="list-wrap">
     <a-list-item slot="renderItem" slot-scope="item">
       <a-list-item-meta>
-        <router-link slot="title" :to="{ path: '/post/123' }" class="title">{{
-          item.title
-        }}</router-link>
+        <router-link
+          slot="title"
+          :to="{ path: `/post/${item._id}` }"
+          class="title"
+          >{{ item.name }}</router-link
+        >
         <div slot="description">
           <div>
             <a-tag color="pink">
@@ -14,7 +17,7 @@
               ssr
             </a-tag>
           </div>
-          <div class="date">2020-8-3 00:53:10</div>
+          <div class="date">{{ item.createTime }}</div>
         </div>
       </a-list-item-meta>
       <img
@@ -28,25 +31,26 @@
 </template>
 
 <script>
+import Http from '../../utils/Http.js'
 export default {
   data() {
     return {
-      data: [
-        {
-          title: 'vue 源码学习-数据动态响应：依赖 Dep',
-        },
-        {
-          title: 'js 基础：对象属性 property 相关 api 示例',
-        },
-        {
-          title: 'css 中 BFC 规范',
-        },
-        {
-          title: 'vue 源码学习-数据动态响应：监听者 Watcher',
-        },
-      ],
+      list: [],
     };
   },
+  created() {
+    const self = this;
+    new Http().request({
+      url: '/posts',
+      data: {
+        page: 1,
+        pageSize: 10
+      }
+    }).then(data => {
+      self.list = data.list
+      console.log(data.list)
+    }).catch(err => { })
+  }
 }
 </script>
 

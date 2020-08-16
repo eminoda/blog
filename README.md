@@ -22,12 +22,17 @@ eminoda 的博客
 
 - [ ] 博客搬迁
 
-  - [ ] 爬取文章列表，存储文章基础数据 /admin/spider/posts
-  - [ ] 根据 post.id 存储文章（单个/批量） /admin/transfer/posts/:name
-    - [ ] 查询文章内容 getPostByName
+  - [*] 爬取文章列表，解析基础数据 /admin/spider/posts/
+  - [ ] 根据 post.id 爬取指定文章 /admin/spider/posts/:id
+
+    - [*] 解析（图片）资源地址，批量存储到服务器
+    - [*] 替换 markdown 图片地址（asset_img 为 raw.github 地址）
+    - [*] 存储 md 源文件 saveOriginMD
     - [ ] 解析 tag，category 内容 parseKeyWord
-    - [ ] 解析资源地址，批量存储到服务器 parseAssertImage saveAssertImage
-    - [ ] 存储 md 源文件 saveOriginMD
-    - [ ] 更新发布时间 updatePostById
+
+  - [ ] 数据修复
+    - [ ] 检查文章内，图片资源数==asset_img 数量==assetByPostId count
+    - [ ] 检查文章图片未显示问题（markdown 缩进问题）
+    - [ ] 更新检查状态 updatePostPublishStatus
 
 - [ ] 在线编辑
