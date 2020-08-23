@@ -3,6 +3,7 @@ const path = require('path');
 const cheerio = require('cheerio');
 const Service = require('egg').Service;
 const Http = require('../util/http');
+const moment = require('moment');
 
 class SpiderService extends Service {
   // 解析文章列表
@@ -25,27 +26,39 @@ class SpiderService extends Service {
     if (!post) {
       throw new Error('文章不存在');
     }
-    if (post.markdown) {
-      return post;
-    }
+
+    // if (post.markdown) {
+    //   return post;
+    // }
     // 1. 获取，保存 md 源文件
     let originMarkdown = post.originMarkdown;
     if (!originMarkdown) {
       originMarkdown = await service.spider._fetch(post.raw);
       await service.post.updatePostById(id, { originMarkdown });
     }
-    // 2. 解析 md 中的 asset_img 资源文件
-    const assetImgs = service.spider.parseAssetImg(originMarkdown);
-    // 3. 保存资源文件 asset，并关联 post
-    await service.post.checkExistAndSaveAssetImg(assetImgs, post);
-    // 4. 下载资源到本地
-    await this.service.spider.downAssetImg(post);
-    // 替换 md 资源
     const assets = await ctx.model.Asset.find({ postId: id });
-    const markdown = service.spider._replaceMdData(originMarkdown, assets);
-    if (markdown) {
-      await ctx.model.Post.updateOne({ _id: id }, { markdown });
+    if (!assets || assets.length == 0) {
+      // 2. 解析 md 中的 asset_img 资源文件
+      const assetImgs = service.spider.parseAssetImg(originMarkdown);
+      // 3. 保存资源文件 asset，并关联 post
+      await service.post.checkExistAndSaveAssetImg(assetImgs, post);
+      // 4. 下载资源到本地
+      await this.service.spider.downAssetImg(post);
     }
+
+    if (!post.tags || post.tags.length == 0 || !post.categories || post.categories.length == 0) {
+      const { title, tags, categories, date } = this.service.spider.parsePostProps(originMarkdown);
+      await ctx.model.Post.updateOne({ _id: id }, { title, tags, categories, publishTime: moment(date, 'YYYY-MM-DD HH:mm:ss') });
+    }
+
+    // 替换 md 资源
+    if (!post.markdown) {
+      const markdown = service.spider._replaceMdData(originMarkdown, assets);
+      if (markdown) {
+        await ctx.model.Post.updateOne({ _id: id }, { markdown });
+      }
+    }
+
     const data = await ctx.model.Post.findById(id);
     return {
       data,
@@ -75,7 +88,7 @@ class SpiderService extends Service {
         // https://github.com/eminoda/myBlog/blob/master/eminoda.github.io/source/_posts/2018-05-10-eslint-and-test.md
         // https://raw.githubusercontent.com/eminoda/myBlog/master/eminoda.github.io/source/_posts/2018-05-10-eslint-and-test.md
         posts.push({
-          name: $href.text(),
+          fileName: $href.text(),
           url: `https://www.github.com${href}`,
           raw: `https://raw.githubusercontent.com${href.replace('/blob', '')}`,
         });
@@ -108,18 +121,20 @@ class SpiderService extends Service {
     }
   }
 
-  async downAssetImg({ _id, name }) {
+  async downAssetImg({ _id, fileName }) {
     const { ctx } = this;
     const assets = await ctx.model.Asset.find({ postId: _id });
     const promiseList = [];
     // 下载资源
     for (let asset of assets) {
+      // https://raw.githubusercontent.com/eminoda/myBlog/master/eminoda.github.io/source/_posts/2017-02-09-git-quickstart/g7.png
       const fileNameMatch = asset.originUrl.match(/[^\/]+$/);
-      const fileName = fileNameMatch[0];
-      const dirtory = `/posts/${name.split('.')[0]}`;
-      const filePath = `${dirtory}/${fileName}`;
+      const AssetImgfileName = fileNameMatch[0];
+      const dirtory = `/posts/${fileName.split('.')[0]}`;
+      const filePath = `${dirtory}/${AssetImgfileName}`;
       if (!fs.existsSync(filePath)) {
-        promiseList.push(this.service.spider.fetchAssetImg(asset, { dirtory, fileName }));
+        // 2017-02-09-git-quickstart
+        promiseList.push(this.service.spider.fetchAssetImg(asset, { dirtory }));
       }
     }
     // 关联 id
@@ -133,9 +148,9 @@ class SpiderService extends Service {
     return Promise.all(promiseUpdateList);
   }
 
-  async fetchAssetImg({ _id, originUrl }, { dirtory, fileName }) {
+  async fetchAssetImg({ _id, originUrl }, { dirtory }) {
     const fileNameMatch = originUrl.match(/[^\/]+$/);
-    const fileName = fileNameMatch[0];
+    const assetImgFileName = fileNameMatch[0];
     return new Promise((resolve, reject) => {
       try {
         new Http({
@@ -148,7 +163,7 @@ class SpiderService extends Service {
             } catch (err) {
               throw new Error('fs 目录创建失败: ' + dirtory);
             }
-            const ws = fs.createWriteStream(`${dirtory}/${fileName}`);
+            const ws = fs.createWriteStream(`${dirtory}/${assetImgFileName}`);
             data.pipe(ws);
             ws.on('finish', function() {
               resolve({ id: _id, status: true });
@@ -225,6 +240,40 @@ class SpiderService extends Service {
       }
     }
     return list;
+  }
+
+  parsePostProps(data) {
+    const parseHeader = data.match(/^\n*-{3}([\.\-:：()（）\w\s\u4e00-\u9fa5]+)-{3}/)[1];
+    // console.log(parseHeader);
+    var lineRe = /(\n+)([^\n]*)/g;
+    var parse = {};
+    var keyParse;
+    while (1 == 1) {
+      const lineResult = lineRe.exec(parseHeader);
+      if (!lineResult || !lineResult[2]) {
+        break;
+      }
+      const line = lineResult[2];
+      const lineParse = /(title|tags|categories|thumb_img|date):\s+([^\n]*)/g.exec(line);
+      // console.log(line);
+      if (lineParse) {
+        parse[lineParse[1]] = lineParse[2];
+      } else {
+        const mulitpleKey = /(tags|categories)/.exec(line);
+        if (mulitpleKey) {
+          keyParse = mulitpleKey[1];
+          parse[keyParse] = [];
+        } else {
+          const mulitpleVal = /^\s+-\s*([^\n]*)/.exec(line);
+          // console.log(mulitpleVal);
+          if (mulitpleVal) {
+            const valParse = mulitpleVal[1];
+            parse[keyParse].push(valParse);
+          }
+        }
+      }
+    }
+    return parse;
   }
 }
 

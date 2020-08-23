@@ -6,18 +6,15 @@
           slot="title"
           :to="{ path: `/post/${item._id}` }"
           class="title"
-          >{{ item.name }}</router-link
+          >{{ item.title }}</router-link
         >
         <div slot="description">
           <div>
-            <a-tag color="pink">
-              vue
-            </a-tag>
-            <a-tag color="red">
-              ssr
+            <a-tag color="pink" v-for="(tag,index) in item.tags" :key="index">
+              {{tag}}
             </a-tag>
           </div>
-          <div class="date">{{ item.createTime }}</div>
+          <div class="date">{{ item.publishTime }}</div>
         </div>
       </a-list-item-meta>
       <img

@@ -19,7 +19,7 @@ class ParserController extends Controller {
     const { ctx, service } = this;
     ctx.body = await service.spider.parsePosts();
   }
-  // 5f33254e24bc9d2e2888a434
+  // 5f36b3838817ff22b8e309e3
   async post() {
     const { ctx, service } = this;
     const postId = ctx.params.id;

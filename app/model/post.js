@@ -6,11 +6,12 @@ module.exports = (app) => {
 
   const PostSchema = new Schema({
     id: { type: mongoose.ObjectId },
-    name: { type: String },
+    fileName: { type: String },
+    title: { type: String },
     url: { type: String },
     raw: { type: String },
     tags: { type: Array },
-    category: { type: Array },
+    categories: { type: Array },
     readTotalCount: { type: Number },
     originMarkdown: { type: String },
     markdown: { type: String },

@@ -25,7 +25,7 @@ class PostService extends Service {
     if (data) {
       throw new Error(`已存在 ${post.url}`);
     } else {
-      ctx.model.Post.create(post);
+      return ctx.model.Post.create(post);
     }
   }
   async findPostByUrl(url) {
@@ -33,10 +33,11 @@ class PostService extends Service {
     return ctx.model.Post.findOne({ url });
   }
   async updatePostById(id, data) {
+    const { ctx, service } = this;
     return ctx.model.Post.updateOne({ _id: id }, data);
   }
 
-  async checkExistAndSaveAssetImg(assetImgs, { _id, name }) {
+  async checkExistAndSaveAssetImg(assetImgs, { _id, fileName }) {
     const { ctx, service } = this;
     const promiseList = [];
     const prefixPath = 'https://raw.githubusercontent.com/eminoda/myBlog/master/eminoda.github.io/source/_posts';
@@ -47,7 +48,7 @@ class PostService extends Service {
           fileName: item.fileName,
           desc: item.desc,
           postId: _id,
-          originUrl: `${prefixPath}/${name.split('.')[0]}/${item.fileName}`,
+          originUrl: `${prefixPath}/${fileName.split('.')[0]}/${item.fileName}`,
         };
         promiseList.push(ctx.model.Asset.create(asset));
       }

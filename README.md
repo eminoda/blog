@@ -12,13 +12,24 @@ eminoda 的博客
     - [x] 集成 webpack-dev-middleware 中间件
     - [x] 集成 webpack-hot-middleware 中间件
     - [ ] router 和 store 的解析
-  - [ ] mongodb 数据存储
+  - [x] mongodb 数据存储
+  - [x] 集成 AntiDesign UI
 
 - [ ] 页面设计
 
-  - [x] 集成 antd
-  - [x] 文章列表页
-  - [x] 文章详情页
+  - [ ] 文章列表页
+  - [ ] 文章详情页
+  - [ ] 后台 admin
+    - [ ] 文章列表页
+      - [ ] 文章展示
+      - [ ] 文章发布
+      - [ ] 文章标题检查
+      - [ ] 资源文件检查
+      - [ ] 标签、分类检查
+    - [ ] 文章详情页
+      - [ ] 预览
+      - [ ] 编辑
+    - [ ] 在线编辑
 
 - [ ] 博客搬迁
 
@@ -30,9 +41,8 @@ eminoda 的博客
     - [*] 存储 md 源文件 saveOriginMD
     - [ ] 解析 tag，category 内容 parseKeyWord
 
-  - [ ] 数据修复
-    - [ ] 检查文章内，图片资源数==asset_img 数量==assetByPostId count
-    - [ ] 检查文章图片未显示问题（markdown 缩进问题）
-    - [ ] 更新检查状态 updatePostPublishStatus
-
-- [ ] 在线编辑
+    * [ ] 数据修复
+      - [ ] 检查文章内，图片资源数==asset_img 数量==assetByPostId count
+      - [ ] 检查文章图片未显示问题（markdown 缩进问题）
+        - [ ] .replace(/(.\*)(\n\s+!\[)/g,'$1\n$2')
+      - [ ] 更新检查状态 updatePostPublishStatus

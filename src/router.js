@@ -3,6 +3,7 @@ import VueRouter from 'vue-router';
 import Home from './pages/Home.vue';
 import Post from './pages/Post.vue';
 import User from './pages/User.vue';
+import AdminPost from './pages/admin/Post.vue';
 
 Vue.use(VueRouter);
 const routes = [
@@ -17,6 +18,10 @@ const routes = [
   {
     path: '/user',
     component: User,
+  },
+  {
+    path: '/admin/post',
+    component: AdminPost,
   },
 ];
 
