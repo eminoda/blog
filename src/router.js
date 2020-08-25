@@ -20,7 +20,7 @@ const routes = [
     component: User,
   },
   {
-    path: '/admin/post',
+    path: '/admin/posts',
     component: AdminPost,
   },
 ];

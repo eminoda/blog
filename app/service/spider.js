@@ -27,9 +27,9 @@ class SpiderService extends Service {
       throw new Error('文章不存在');
     }
 
-    // if (post.markdown) {
-    //   return post;
-    // }
+    if (post.markdown) {
+      return post;
+    }
     // 1. 获取，保存 md 源文件
     let originMarkdown = post.originMarkdown;
     if (!originMarkdown) {
@@ -243,7 +243,7 @@ class SpiderService extends Service {
   }
 
   parsePostProps(data) {
-    const parseHeader = data.match(/^\n*-{3}([\.\-:：()（）\w\s\u4e00-\u9fa5]+)-{3}/)[1];
+    const parseHeader = data.match(/^\n*-{3}([\.\-:：()（），、——\[\]“”''""\$&\w\s\u4e00-\u9fa5]+)-{3}/)[1];
     // console.log(parseHeader);
     var lineRe = /(\n+)([^\n]*)/g;
     var parse = {};
@@ -273,6 +273,10 @@ class SpiderService extends Service {
         }
       }
     }
+    parse.date = parse.date || null;
+    parse.categories = parse.categories || [];
+    parse.tags = parse.tags || [];
+    parse.title = parse.title || '';
     return parse;
   }
 }

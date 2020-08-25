@@ -2,9 +2,29 @@
   <content-layout>
     <!-- 操作 -->
     <!-- table -->
-    <a-table :columns="columns" :data-source="list" key="_id">
-      <span slot="action" slot-scope="">
-        <a>检查</a>
+    <a-table
+      key="_id"
+      :columns="columns"
+      :data-source="list"
+      :pagination="pagination"
+      :scroll="{ x: 1000 }"
+      @change="handleChange"
+    >
+      <span slot="tags" slot-scope="tags">
+        <a-tag v-for="tag in tags" :key="tag" color="volcano">
+          {{ tag }}
+        </a-tag>
+      </span>
+      <span slot="action" slot-scope="record">
+        <a-button type="primary" size="small" icon="form" />
+        <a-button
+          type="primary"
+          size="small"
+          icon="file-sync"
+          :disabled="!!record.title"
+          @click="parsePostProps(record._id)"
+        />
+        <a-button type="primary" size="small" icon="picture" />
       </span>
     </a-table>
   </content-layout>
@@ -20,20 +40,43 @@ export default {
     return {
       columns: postColumns,
       list: [],
+      pagination: {
+        total: 0,
+        page: 1,
+      }
+
+    }
+  },
+  methods: {
+    handleChange(pagination, filters, sorter) {
+      this.pagination.page = pagination.current
+      this.queryList()
+    },
+    parsePostProps(id) {
+      new Http().request({
+        url: '/admin/parse/postProps',
+        method: 'post',
+        data: { id }
+      }).then(data => {
+        this.queryList()
+      }).catch(err => { })
+    },
+    queryList() {
+      const self = this;
+      new Http().request({
+        url: '/posts',
+        data: {
+          page: self.pagination.page,
+          pageSize: 10
+        }
+      }).then(data => {
+        self.list = data.list
+        self.pagination.total = data.total
+      }).catch(err => { })
     }
   },
   created() {
-    const self = this;
-    new Http().request({
-      url: '/posts',
-      data: {
-        page: 1,
-        pageSize: 10
-      }
-    }).then(data => {
-      self.list = data.list
-      console.log(data.list)
-    }).catch(err => { })
+    this.queryList()
   }
 }
 </script>

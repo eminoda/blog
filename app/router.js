@@ -13,4 +13,6 @@ module.exports = (app) => {
   // 爬取文章
   router.get('/admin/spider/posts/', controller.spider.posts);
   router.get('/admin/spider/posts/:id', controller.spider.post);
+  // 解析文章属性
+  router.post('/api/admin/parse/postProps', controller.admin.parsePostProps);
 };
