@@ -15,7 +15,7 @@ export default {
       htmlData:''
     }
   },
-  created() {
+  mounted() {
     const self = this;
     new Http().request({
       url: `/posts/${this.$route.params.id}`

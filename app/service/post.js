@@ -4,6 +4,7 @@ class PostService extends Service {
   async getPosts(page = 1, pageSize = 10) {
     const { ctx, service } = this;
     return ctx.model.Post.find({})
+      .sort({ publishTime: 'desc' })
       .skip(Number((page - 1) * pageSize))
       .limit(Number(pageSize));
   }

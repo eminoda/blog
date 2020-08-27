@@ -15,12 +15,45 @@ class PostController extends Controller {
       },
     };
   }
-  async marked() {
+  async getMarkFile() {
     const { ctx, service } = this;
-    const post = await service.post.getPostById(ctx.params.id);
-    ctx.body = {
-      data: marked(post.markdown),
-    };
+    const id = ctx.params.id;
+    if (!id) {
+      throw new Error('文章不存在');
+    }
+    const post = await service.post.getPostById(id);
+    if (!post.originMarkdown) {
+      throw new Error('源文章不存在');
+    }
+    if (!post.markdown) {
+      let assets = await ctx.model.Asset.find({ postId: id });
+      if (!assets || assets.length == 0) {
+        try {
+          // 2. 解析 md 中的 asset_img 资源文件
+          const assetImgs = service.spider.parseAssetImg(post.originMarkdown);
+          // 3. 保存资源文件 asset，并关联 post
+          await service.post.checkExistAndSaveAssetImg(assetImgs, post);
+          assets = await ctx.model.Asset.find({ postId: id });
+        } catch (err) {
+          throw new Error('关联文章资源错误');
+        }
+      }
+      try {
+        const markdown = service.spider._replaceMdData(post.originMarkdown, assets);
+        if (markdown) {
+          await ctx.model.Post.updateOne({ _id: id }, { markdown });
+        }
+        ctx.body = {
+          data: marked(markdown),
+        };
+      } catch (err) {
+        throw new Error('markdown 解析错误');
+      }
+    } else {
+      ctx.body = {
+        data: marked(post.markdown),
+      };
+    }
   }
 }
 
