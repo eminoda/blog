@@ -43,18 +43,35 @@ class PostService extends Service {
     const promiseList = [];
     const prefixPath = 'https://raw.githubusercontent.com/eminoda/myBlog/master/eminoda.github.io/source/_posts';
     for (let item of assetImgs) {
-      const data = await ctx.model.Asset.findOne({ fileName: item.fileName });
-      if (!data) {
-        const asset = {
-          fileName: item.fileName,
-          desc: item.desc,
-          postId: _id,
-          originUrl: `${prefixPath}/${fileName.split('.')[0]}/${item.fileName}`,
-        };
-        promiseList.push(ctx.model.Asset.create(asset));
-      }
+      const promiseFn = new Promise((resolve, reject) => {
+        try {
+          ctx.model.Asset.findOne({ fileName: item.fileName })
+            .then((data) => {
+              if (!data) {
+                const asset = {
+                  fileName: item.fileName,
+                  desc: item.desc,
+                  postId: _id,
+                  originUrl: `${prefixPath}/${fileName.split('.')[0]}/${item.fileName}`,
+                };
+                return ctx.model.Asset.create(asset);
+              } else {
+                resolve(true);
+              }
+            })
+            .then((data) => {
+              resolve(true);
+            })
+            .catch((err) => {
+              reject(err);
+            });
+        } catch (err) {
+          reject(err);
+        }
+      });
+      promiseList.push(promiseFn);
     }
-    return promiseList;
+    return Promise.all(promiseList);
   }
 }
 

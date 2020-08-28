@@ -100,6 +100,7 @@ class SpiderService extends Service {
   }
 
   _replaceMdData(mdData, assets) {
+    // console.log(assets);
     const startIndex = mdData.indexOf('{% asset_img');
     if (startIndex !== -1) {
       let tempMdData = mdData.substring(startIndex);
