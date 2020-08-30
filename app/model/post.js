@@ -13,8 +13,8 @@ module.exports = (app) => {
     tags: { type: Array },
     categories: { type: Array },
     readTotalCount: { type: Number },
-    originMarkdown: { type: String },
-    markdown: { type: String },
+    originMarkdown: { type: String }, //源文件（爬虫爬取）
+    markdown: { type: String }, //修改后文件
     publishTime: { type: Date },
     createTime: { type: Date, default: Date.now },
     updateTime: { type: Date },

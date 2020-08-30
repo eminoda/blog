@@ -1,6 +1,10 @@
 const Service = require('egg').Service;
 
 class PostService extends Service {
+  async updatePost({ _id, markdown, title }) {
+    const { ctx, service } = this;
+    return ctx.model.Post.updateOne({ _id }, { markdown, title });
+  }
   async getPosts(page = 1, pageSize = 10) {
     const { ctx, service } = this;
     return ctx.model.Post.find({})

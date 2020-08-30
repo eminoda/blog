@@ -19,6 +19,9 @@ module.exports = {
     extensions: ['.js', '.vue', '.json'],
     modules: ['node_modules'],
   },
+  watchOptions: {
+    ignored: ['node_modules/**'],
+  },
   module: {
     rules: [
       {

@@ -18,7 +18,7 @@ export default {
 		const self = this;
 		new Http()
 			.request({
-				url: `/posts/${this.$route.params.id}`,
+				url: `/posts/${this.$route.params.id}/markdown`,
 			})
 			.then((data) => {
 				self.htmlData = data;

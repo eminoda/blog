@@ -16,14 +16,32 @@
         </a-tag>
       </span>
       <span slot="action" slot-scope="record">
-        <a-button type="primary" size="small" icon="form" />
-        <a-button
-          type="primary"
-          size="small"
-          icon="file-sync"
-          :disabled="!!record.title"
-          @click="parsePostProps(record._id)"
-        />
+        <a-tooltip>
+          <template slot="title">
+            在线预览
+          </template>
+          <a-button
+            type="primary"
+            size="small"
+            icon="form"
+            :disabled="!!!record.markdown"
+            @click="$router.push({ path: `/admin/posts/${record._id}` })"
+          />
+        </a-tooltip>
+
+        <a-tooltip>
+          <template slot="title">
+            解析文章属性（title，tags）
+          </template>
+          <a-button
+            type="primary"
+            size="small"
+            icon="file-sync"
+            :disabled="!!(record.title && record.markdown)"
+            @click="parsePostProps(record._id)"
+          />
+        </a-tooltip>
+
         <a-button type="primary" size="small" icon="picture" />
       </span>
     </a-table>

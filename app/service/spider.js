@@ -100,7 +100,7 @@ class SpiderService extends Service {
   }
 
   _replaceMdData(mdData, assets) {
-    // console.log(assets);
+    console.log(mdData, assets);
     const startIndex = mdData.indexOf('{% asset_img');
     if (startIndex !== -1) {
       let tempMdData = mdData.substring(startIndex);
@@ -112,6 +112,8 @@ class SpiderService extends Service {
             template = `![${desc}](${originUrl})`;
             mdData = mdData.substring(0, startIndex) + template + mdData.substring(endIndx);
             return this.service.spider._replaceMdData(mdData, assets);
+          } else {
+            console.log(`not match: ${fileName} ${desc ? desc + ' ' : ''}`, `template: ${template}`);
           }
         }
         throw new Error('md 不正确');

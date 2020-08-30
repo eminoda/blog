@@ -1,9 +1,9 @@
 <template>
   <div id="app">
-    <a-layout class="wrap">
+    <a-layout>
       <Header />
       <a-layout-content>
-        <router-view class="view"></router-view>
+        <router-view></router-view>
       </a-layout-content>
       <a-layout-footer>Footer</a-layout-footer>
     </a-layout>
@@ -17,9 +17,12 @@ export default {
   components: { Header }
 }
 </script>
-<style>
-.wrap {
+<style lang="scss" scoped>
+.ant-layout {
   background-color: #f4f5f5;
   margin: auto;
+  .ant-layout-content {
+    margin-top: 64px;
+  }
 }
 </style>

@@ -32,22 +32,27 @@ export default {
 }
 </script>
 
-<style scoped lang="scss">
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 1000px;
-  margin: auto;
-  .logo {
-    background-color: #fff;
-    color: #333;
-    font-size: 20px;
-    padding: 0 10px;
-  }
-  .menu-wrap {
-    width: 100%;
-    text-align: center;
+<style lang="scss" scoped>
+.ant-layout-header {
+  position: fixed;
+  width: 100%;
+  z-index: 999;
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 1000px;
+    margin: auto;
+    .logo {
+      background-color: #fff;
+      color: #333;
+      font-size: 20px;
+      padding: 0 10px;
+    }
+    .menu-wrap {
+      width: 100%;
+      text-align: center;
+    }
   }
 }
 </style>

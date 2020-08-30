@@ -15,6 +15,22 @@ class PostController extends Controller {
       },
     };
   }
+  async detail() {
+    const { ctx, service } = this;
+    const id = ctx.params.id;
+    if (!id) {
+      throw new Error('参数错误：文章 id 不存在');
+    }
+    const post = await service.post.getPostById(id);
+    if (!post) {
+      throw new Error('文章不存在');
+    } else {
+      ctx.body = {
+        data: post,
+      };
+    }
+  }
+
   async getMarkFile() {
     const { ctx, service } = this;
     const id = ctx.params.id;

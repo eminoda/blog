@@ -1,5 +1,5 @@
 <template>
-  <div class="wrap"><slot /></div>
+  <div class="content-layout-wrap"><slot /></div>
 </template>
 
 <script>
@@ -9,7 +9,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.wrap {
+.content-layout-wrap {
   background-color: #fff;
   width: 1000px;
   padding: 30px;

@@ -31,6 +31,7 @@
     </a-list>
     <a-pagination
       :default-current="1"
+      :defaultPageSize="pagnation.pageSize"
       :total="pagnation.total"
       @change="onChange"
     />
@@ -45,6 +46,7 @@ export default {
       list: [],
       pagnation: {
         page: 1,
+        pageSize:5,
         total: 0
       }
     };
@@ -61,7 +63,7 @@ export default {
           url: '/posts',
           data: {
             page: self.pagnation.page,
-            pageSize: 10,
+            pageSize: self.pagnation.pageSize,
           },
         })
         .then((data) => {
