@@ -13,6 +13,7 @@
     "egg": "^2.15.1",
     "egg-mongoose": "^3.2.0",
     "egg-scripts": "^2.11.0",
+    "jsonwebtoken": "^8.5.1",
     "koa-static": "^5.0.0",
     "marked": "^1.1.1",
     "memory-fs": "^0.5.0",

@@ -18,7 +18,7 @@ module.exports = (appInfo) => {
   config.keys = appInfo.name + '_1596353041082_475';
 
   // add your middleware config here
-  config.middleware = ['koaStatic', 'ssrRender'];
+  config.middleware = ['koaStatic'];
   // config.middleware = ['koaStatic'];
 
   config.ssrRender = {

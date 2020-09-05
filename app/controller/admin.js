@@ -3,18 +3,6 @@
 const Controller = require('egg').Controller;
 
 class AdminController extends Controller {
-  async userLogin() {
-    const { ctx, service } = this;
-    const userQuery = ctx.request.body;
-    const user = await ctx.model.User.findOne({ userName: userQuery.userName, password: userQuery.password });
-    if (!user) {
-      throw new Error('用户不存在');
-    }
-    ctx.body = {
-      success: true,
-      data: user,
-    };
-  }
   async parsePostProps() {
     const { ctx, service } = this;
     const id = ctx.request.body.id;

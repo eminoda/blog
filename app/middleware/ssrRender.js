@@ -30,7 +30,7 @@ const serverCompiler = webpack(serverConfig);
 const mfs = new MFS();
 serverCompiler.outputFileSystem = mfs;
 
-module.exports = (options, config) => {
+module.exports = (app) => {
   let template;
   let clientManifest;
   let bundle;
@@ -45,7 +45,7 @@ module.exports = (options, config) => {
     }
   };
 
-  if (config.env == 'local') {
+  if (app.env == 'local') {
     template = fs.readFileSync(path.join(__dirname, '../../src/index.template.html'), 'utf-8');
     clientCompiler.plugin('done', (stats) => {
       stats = stats.toJson();
@@ -70,29 +70,19 @@ module.exports = (options, config) => {
 
   return async function(ctx, next) {
     const { clientManifest, bundle } = await readyPromise;
-    const context = {
-      title: options.title,
-      url: ctx.path,
-    };
     try {
-      if (config.env == 'local') {
-        await devMiddlewareWrap(ctx);
-      }
-      ctx.body = await ssrRender({ bundle, template, clientManifest, context });
-    } catch (err) {
-      if (config.env == 'prod') {
-        await next();
+      if (ctx.path == '/__webpack_hmr') {
+        webpackHotMiddlewareWrap(ctx, clientCompiler, { heartbeat: 5000 });
       } else {
-        if (err.code == 404) {
-          if (ctx.path == '/__webpack_hmr') {
-            webpackHotMiddlewareWrap(ctx, clientCompiler, { heartbeat: 5000 });
-          } else {
-            await next();
-          }
-        } else {
-          throw err;
+        // webpack-dev-middleware
+        const static = await devMiddlewareWrap(ctx);
+        if (!static) {
+          ctx.body = await ssrRender({ bundle, template, clientManifest, context: ctx });
         }
       }
+    } catch (err) {
+      console.log(err);
+      throw err;
     }
   };
 };

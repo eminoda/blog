@@ -29,7 +29,7 @@ export default {
     login(id) {
       const self = this;
       new Http().request({
-        url: `/admin/user/login`,
+        url: `/user/login`,
         method: 'post',
         data: {
           userName: self.user.userName,

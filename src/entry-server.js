@@ -3,7 +3,10 @@ import { createApp } from './app';
 export default (context) => {
   return new Promise((resolve, reject) => {
     const { app, router } = createApp();
-    router.push(context.url);
+    console.log(context.path, context.state.userLoginStatus);
+    context.title = 123;
+
+    router.push(context.path);
     router.onReady(() => {
       const matchedComponents = router.getMatchedComponents();
       if (!matchedComponents.length) {

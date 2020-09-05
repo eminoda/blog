@@ -3,9 +3,10 @@ import VueRouter from 'vue-router';
 import Home from './pages/Home.vue';
 import Post from './pages/Post.vue';
 import User from './pages/User.vue';
+import UserLogin from './pages/user/Login.vue';
+
 import AdminPostList from './pages/admin/PostList.vue';
 import AdminPostDetail from './pages/admin/PostDetail.vue';
-import AdminUserLogin from './pages/admin/Login.vue';
 
 Vue.use(VueRouter);
 const routes = [
@@ -30,8 +31,8 @@ const routes = [
     component: AdminPostDetail,
   },
   {
-    path: '/admin/user/login',
-    component: AdminUserLogin,
+    path: '/user/login',
+    component: UserLogin,
   },
 ];
 
