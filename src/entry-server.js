@@ -3,14 +3,13 @@ import { createApp } from './app';
 export default (context) => {
   return new Promise((resolve, reject) => {
     const { app, router } = createApp();
-    console.log(context.path, context.state.userLoginStatus);
-    context.title = 123;
+    context.title = '前端雨爸 Eminoda Blog';
 
     router.push(context.path);
     router.onReady(() => {
       const matchedComponents = router.getMatchedComponents();
       if (!matchedComponents.length) {
-        return reject({ code: 404 });
+        return reject({ code: 404, url: context.path });
       }
       Promise.all(
         matchedComponents.map((Component) => {

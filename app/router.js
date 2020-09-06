@@ -5,7 +5,6 @@
  */
 module.exports = (app) => {
   const { router, controller } = app;
-  router.get('/', controller.home.index);
 
   router.post('/api/user/login', controller.user.login);
 
@@ -22,5 +21,8 @@ module.exports = (app) => {
   router.post('/api/admin/save/postMarkdown', app.middleware.jwtToken, controller.admin.savePost);
 
   // 静态页面
-  router.get('*', app.middleware.jwtToken, app.middleware.ssrRender(app));
+  // app.middleware.ssrRender(app)
+  router.get('*', app.middleware.jwtToken, app.middleware.ssrRender(app), async (ctx) => {
+    console.log(ctx.body);
+  });
 };

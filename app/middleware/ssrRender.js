@@ -68,7 +68,7 @@ module.exports = (app) => {
     template = fs.readFileSync(path.join(__dirname, '../../src/index.template.html'), 'utf-8');
   }
 
-  return async function(ctx, next) {
+  return async function(ctx) {
     const { clientManifest, bundle } = await readyPromise;
     try {
       if (ctx.path == '/__webpack_hmr') {
@@ -77,11 +77,14 @@ module.exports = (app) => {
         // webpack-dev-middleware
         const static = await devMiddlewareWrap(ctx);
         if (!static) {
-          ctx.body = await ssrRender({ bundle, template, clientManifest, context: ctx });
+          try {
+            ctx.body = await ssrRender({ bundle, template, clientManifest, context: ctx });
+          } catch (err) {
+            throw err;
+          }
         }
       }
     } catch (err) {
-      console.log(err);
       throw err;
     }
   };
@@ -101,10 +104,10 @@ function ssrRender({ template, clientManifest, bundle, context }) {
       });
 
       renderer.renderToString(context, (err, html) => {
-        if (!err) {
-          resolve(html);
+        if (err) {
+          throw err;
         } else {
-          reject(err);
+          resolve(html);
         }
       });
     } catch (err) {

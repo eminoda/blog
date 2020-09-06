@@ -36,7 +36,11 @@ export default {
           password: self.user.password,
         }
       }).then(data => {
-      }).catch(err => { })
+        const backUrl = self.$route.query.backUrl
+        self.$router.push({ path: backUrl || '/' })
+      }).catch(err => {
+        console.log(1)
+      })
     }
   },
   created() {
