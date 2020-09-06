@@ -1,9 +1,6 @@
 <template>
   <content-layout>
     <posts />
-    <div>
-      <router-link to="/user">user </router-link>
-    </div>
   </content-layout>
 </template>
 
@@ -11,7 +8,13 @@
 import Posts from '../components/post/Posts'
 import ContentLayout from '../components/layout/ContentLayout'
 export default {
-  components: { ContentLayout, Posts }
+  components: { ContentLayout, Posts },
+  asyncData({ store, route }) {
+    return store.dispatch('fetchPosts','test')
+  },
+  mounted(){
+    console.log(this.$store.state.posts)
+  }
 }
 </script>
 

@@ -1,29 +1,41 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
+import Http from './utils/Http.js';
 
-import api from './services/http.js';
+// import api from './services/http.js';
 
 Vue.use(Vuex);
 
 const vueStore = new Vuex.Store({
   state: {
-    items: {},
-    name: '',
+    posts: [],
+    postsTotalCount: 0,
   },
   actions: {
-    fetchItem({ commit }, option) {
-      return api(option).then((data) => {
-        commit('setData', { time: data });
+    fetchPosts({ commit, state }, data) {
+      return new Promise((resolve, reject) => {
+        new Http()
+          .request({
+            url: '/posts',
+            data: {
+              page: 1,
+              pageSize: 10,
+            },
+          })
+          .then((data) => {
+            commit('setPosts', { list: data.list, total: data.total });
+            resolve(true);
+          })
+          .catch((err) => {
+            reject(err);
+          });
       });
     },
   },
   mutations: {
-    setData(state, data) {
-      // Vue.set(state.items, id, data);
-      state.items = data;
-    },
-    setName(state, data) {
-      state.name = data;
+    setPosts(state, { list, total }) {
+      state.posts = list;
+      state.postsTotalCount = total;
     },
   },
 });

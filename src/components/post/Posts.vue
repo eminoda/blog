@@ -43,11 +43,11 @@ import Http from '../../utils/Http.js';
 export default {
   data() {
     return {
-      list: [],
+      list: this.$store.state.posts || [],
       pagnation: {
         page: 1,
-        pageSize:5,
-        total: 0
+        pageSize: 5,
+        total: this.$store.state.postsTotalCount || 0
       }
     };
   },
@@ -75,7 +75,7 @@ export default {
   },
   created() { },
   mounted() {
-    this.queryList()
+    // this.queryList()
   },
 };
 </script>

@@ -2,7 +2,7 @@ import { createApp } from './app';
 
 export default (context) => {
   return new Promise((resolve, reject) => {
-    const { app, router } = createApp();
+    const { app, router, store } = createApp();
     context.title = '前端雨爸 Eminoda Blog';
 
     router.push(context.path);
@@ -13,12 +13,12 @@ export default (context) => {
       }
       Promise.all(
         matchedComponents.map((Component) => {
-          // if (Component.asyncData) {
-          //   return Component.asyncData({
-          //     store,
-          //     route: router.currentRoute,
-          //   });
-          // }
+          if (Component.asyncData) {
+            return Component.asyncData({
+              store,
+              route: router.currentRoute,
+            });
+          }
         })
       )
         .then(() => {
@@ -27,8 +27,7 @@ export default (context) => {
           // 当我们将状态附加到上下文，
           // 并且 `template` 选项用于 renderer 时，
           // 状态将自动序列化为 `window.__INITIAL_STATE__`，并注入 HTML。
-          // context.state = store.state;
-
+          context.state = store.state;
           resolve(app);
         })
         .catch(reject);

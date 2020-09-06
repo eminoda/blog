@@ -22,6 +22,7 @@ class PostController extends Controller {
       throw new Error('参数错误：文章 id 不存在');
     }
     const post = await service.post.getPostById(id);
+    post.markdown = post.markdown.replace(/-{3}(?:[\.\-:：()（），、——\[\]“”''""\$&\w\s\t\u4e00-\u9fa5]+)-{3}/, '');
     if (!post) {
       throw new Error('文章不存在');
     } else {
