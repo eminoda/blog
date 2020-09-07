@@ -11,24 +11,27 @@ import ContentLayout from '../components/layout/ContentLayout';
 import marked from 'marked'
 export default {
   components: { ContentLayout },
+  asyncData({ store, route }) {
+    return store.dispatch('fetchPost', route.params.id)
+  },
   data() {
     return {
-      post: {},
-      postHtml: ''
+      post: this.$store.state.post || {},
+      postHtml: this.$store.state.postHtml || ''
     };
   },
-  mounted() {
-    const self = this;
-    new Http()
-      .request({
-        url: `/posts/${this.$route.params.id}`,
-      })
-      .then((data) => {
-        self.post = data;
-        self.postHtml = marked(data.markdown)
-      })
-      .catch((err) => { });
-  },
+  // mounted() {
+  //   const self = this;
+  //   new Http()
+  //     .request({
+  //       url: `/posts/${this.$route.params.id}`,
+  //     })
+  //     .then((data) => {
+  //       self.post = data;
+  //       self.postHtml = marked(data.markdown)
+  //     })
+  //     .catch((err) => { });
+  // },
 };
 </script>
 

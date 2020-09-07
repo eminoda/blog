@@ -9,9 +9,12 @@
         :default-selected-keys="['2']"
         :style="{ lineHeight: '64px' }"
       >
-        <a-menu-item v-for="item in menus" :key="item.id">{{
-          item.name
-        }}</a-menu-item>
+        <a-menu-item
+          v-for="item in menus"
+          :key="item.id"
+          @click="handleMenu(item)"
+          >{{ item.name }}</a-menu-item
+        >
       </a-menu>
     </div>
   </a-layout-header>
@@ -22,11 +25,16 @@ export default {
   data() {
     return {
       menus: [
-        { id: 1, name: '首页' },
+        { id: 1, name: '首页', path: '/' },
         { id: 2, name: '标签' },
         { id: 3, name: '分类' },
         { id: 4, name: '归档' },
       ]
+    }
+  },
+  methods: {
+    handleMenu({ path }) {
+      window.location.href = path
     }
   }
 }
