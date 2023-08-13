@@ -1,7 +1,7 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-const inter = Inter({ subsets: ["latin"] });
+import { Archivo } from "next/font/google";
+const inter = Archivo({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -10,10 +10,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body>
-        {children}
-      </body>
+    <html lang="en" className={inter.className}>
+      <body className="bg-gray-100">{children}</body>
     </html>
   );
 }
