@@ -12,6 +12,6 @@ import path from 'path'
 export async function GET(request: Request, { params }: { params: { permalink: string[] } }) {
   const [yyyy, mm, dd, title] = params.permalink
   const md = MarkdownIt()
-  const html = md.render(fs.readFileSync('public/demo.md').toString())
+  const html = md.render(fs.readFileSync('demo.md').toString())
   return NextResponse.json({ code: 0, data: { html, permalink: [yyyy, mm, dd, title].join('/') } })
 }
