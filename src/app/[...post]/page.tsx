@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import "./post.scss";
+import "highlight.js/styles/atom-one-dark.css"
 
 export default async function Post({ params }: { params: { post: string } }) {
   const response = await fetch("http://127.0.0.1:3000/api/post/2012/02/03/abc", { cache: "no-store" });
@@ -14,11 +15,12 @@ export default async function Post({ params }: { params: { post: string } }) {
           <div className="editor" dangerouslySetInnerHTML={markup} />
         </div>
         {/* 文章标题 */}
-        <ol className="pt-20 w-80 bg-emerald-500 text-white p-6 fixed right-0 top-0 z-10 h-full">
+        <ol className="pt-20 w-80 bg-sky-950 text-gray-300 p-6 fixed right-0 top-0 z-10 h-full space-y-2">
           <li>
-            <a href="">
+            <a href="" className="hover:underline decoration-gray-300 underline-offset-4">
               1.<span>前端为何要解析图片资源</span>
             </a>
+            
           </li>
           <li>
             <a href="">

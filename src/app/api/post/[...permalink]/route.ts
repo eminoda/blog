@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import MarkdownIt from 'markdown-it'
+import hljs from 'highlight.js'
 import fs from 'fs'
 import path from 'path'
 
@@ -11,7 +12,17 @@ import path from 'path'
  */
 export async function GET(request: Request, { params }: { params: { permalink: string[] } }) {
   const [yyyy, mm, dd, title] = params.permalink
-  const md = MarkdownIt()
+  const md = MarkdownIt({
+    highlight: function (str, lang) {
+      if (lang && hljs.getLanguage(lang)) {
+        try {
+          return hljs.highlight(str, { language: lang }).value;
+        } catch (__) { }
+      }
+
+      return ''; // use external default escaping
+    }
+  })
   const html = md.render(fs.readFileSync('demo.md').toString())
   return NextResponse.json({ code: 0, data: { html, permalink: [yyyy, mm, dd, title].join('/') } })
 }
