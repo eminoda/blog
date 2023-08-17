@@ -6,7 +6,7 @@ $primary-color: $text-neutral-800;
 $border-color: $text-gray-400;
 $warning-color: $text-red-500;
 
-.editor {
+#editor {
   font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif, "Segoe UI";
 
   h1 {
@@ -57,6 +57,11 @@ $warning-color: $text-red-500;
     // 定位
     @apply mt-6;
     @apply mb-4;
+
+    &::before{
+      content: "🏷️";
+      @apply mr-1;
+    }
   }
 
   // 正文
