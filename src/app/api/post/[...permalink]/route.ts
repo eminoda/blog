@@ -23,6 +23,7 @@ export async function GET(request: Request, { params }: { params: { permalink: s
       return ''; // use external default escaping
     }
   })
-  const html = md.render(fs.readFileSync('demo.md').toString())
-  return NextResponse.json({ code: 0, data: { html, permalink: [yyyy, mm, dd, title].join('/') } })
+  const mdText = fs.readFileSync('demo.md').toString()
+  const html = md.render(mdText)
+  return NextResponse.json({ code: 0, data: { html, md: mdText, permalink: [yyyy, mm, dd, title].join('/') } })
 }

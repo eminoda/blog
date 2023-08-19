@@ -13,7 +13,7 @@ export default async function Post({ params }: { params: { post: string } }) {
       <div className="flex space-between">
         <Header />
         <div className="grow pb-10 mr-80 mt-16">
-          <div id="editor" className="bg-white m-auto max-w-4xl p-10" dangerouslySetInnerHTML={markup} />
+          <div id="preview" className="bg-white m-auto max-w-4xl p-10" dangerouslySetInnerHTML={markup} />
           <Category />
         </div>
       </div>
