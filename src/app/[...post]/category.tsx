@@ -31,7 +31,7 @@ function CategoryNodes(props: { nodes: CategoryNode[]; deep: number }) {
             <span onClick={(e) => scrollTo(e, item.id)} className="hover:underline decoration-gray-300 underline-offset-2 cursor-pointer">
               {item.tag == "h2" ? "📚" : "🏷️" + (index + 1).toString() + ". "}
               <span className={item.active ? "text-red-400" : ""}>
-                {item.title}---{item.id}
+                {item.title}
               </span>
             </span>
             {item.children.length > 0 && <CategoryNodes nodes={item.children} deep={props.deep + 1} />}
@@ -86,7 +86,7 @@ export default function Category() {
   // 激活目录
   useEffect(() => {
     let count = 0;
-    const deepWalk = (list: CategoryNode[]): boolean => {
+    const deepWalk = (list: CategoryNode[]) => {
       for (let i = 0; i < list.length; i++) {
         // 当前元素
         list[i].active = count == titleIndex;
@@ -102,7 +102,7 @@ export default function Category() {
 
   // 计算当前标题
   useEffect(() => {
-    const $rootNode = document.querySelector<HTMLElement>("#editor");
+    const $rootNode = document.querySelector<HTMLElement>("#preview");
     const $titleNodes = Array.from($rootNode?.children!).filter((node) => {
       return ["h2", "h3"].includes(node.nodeName.toLowerCase());
     });
@@ -140,10 +140,11 @@ export default function Category() {
   // 生成目录
   useEffect(() => {
     // 加载文章标题
-    const $rootNode = document.querySelector<HTMLElement>("#editor");
+    const $rootNode = document.querySelector<HTMLElement>("#preview");
     const tree = buildCategoryTree($rootNode!.children);
     setTree(tree);
   }, []);
+
   return (
     <>
       <div className="pt-16 w-80 bg-sky-950 text-gray-300 p-6 fixed right-0 top-0 z-10 h-full">

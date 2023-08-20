@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --show-all",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -12,6 +12,7 @@
     "@types/node": "20.4.7",
     "@types/react": "18.2.18",
     "@types/react-dom": "18.2.7",
+    "ali-oss": "^6.18.0",
     "autoprefixer": "10.4.14",
     "axios": "^1.4.0",
     "eslint": "8.46.0",
@@ -28,6 +29,7 @@
     "typescript": "5.1.6"
   },
   "devDependencies": {
+    "@types/ali-oss": "^6.16.8",
     "@types/markdown-it": "^13.0.0",
     "sass": "^1.65.1"
   }
