@@ -1,7 +1,9 @@
 /** @type {import('next').NextConfig} */
 
 const path = require("path");
+const fs = require("fs");
 const { alioss } = require("./project.config");
+const { execFile } = require("child_process");
 
 const nextConfig = {
   sassOptions: {
@@ -17,7 +19,9 @@ const nextConfig = {
       // The issue is caused by Next.js/Webpack warning on require being called with an expression, which is valid in Node.js environment.
       // https://github.com/kevinbeaty/any-promise/issues/28#issuecomment-344953738
       config.plugins.push(new webpack.IgnorePlugin({ resourceRegExp: /^proxy-agent$/ }));
-      config.externals["any-promise"] = "Promise";
+      config.externals.push({
+        "any-promise": "var Promise",
+      });
     }
     return config;
   },
