@@ -1,9 +1,9 @@
-import { NextResponse } from 'next/server'
-import MarkdownIt from 'markdown-it'
-import hljs from 'highlight.js'
-import fs from 'fs'
-import path from 'path'
-import OssClient from '@/libs/oss'
+import { NextResponse } from "next/server";
+import MarkdownIt from "markdown-it";
+import hljs from "highlight.js";
+import fs from "fs";
+import path from "path";
+import OssClient from "@/libs/oss";
 
 /**
  * 根据文章路径获取文章详情
@@ -13,26 +13,21 @@ import OssClient from '@/libs/oss'
  */
 export async function GET(request: Request, { params }: { params: { permalink: string[] } }) {
   const client = new OssClient();
-  const result = await client.get('2023/01/02/test/index.md')
-  console.log(result,123)
-  const [yyyy, mm, dd, title] = params.permalink
+  const result = await client.get("2023/01/02/test/index.md");
+  console.log(result, 123);
+  const [yyyy, mm, dd, title] = params.permalink;
   const md = MarkdownIt({
     highlight: function (str, lang) {
       if (lang && hljs.getLanguage(lang)) {
         try {
           return hljs.highlight(str, { language: lang }).value;
-        } catch (__) { }
+        } catch (__) {}
       }
 
-      return ''; // use external default escaping
-    }
-  })
-  const mdText = fs.readFileSync('demo.md').toString()
-  const html = md.render(mdText)
-  return NextResponse.json({ code: 0, data: { html, md: mdText, permalink: [yyyy, mm, dd, title].join('/') } })
-}
-
-export async function POST(request: Request,) {
-  console.log(request)
-  return NextResponse.json({ code: 0 })
+      return ""; // use external default escaping
+    },
+  });
+  const mdText = fs.readFileSync("demo.md").toString();
+  const html = md.render(mdText);
+  return NextResponse.json({ code: 0, data: { html, md: mdText, permalink: [yyyy, mm, dd, title].join("/") } });
 }
