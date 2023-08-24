@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-
+import OssClient from "@/libs/oss";
+import fs from 'fs'
 /**
  * 上传图片
  *
@@ -12,7 +13,26 @@ import { NextResponse } from "next/server";
  * @returns
  */
 export async function POST(request: Request) {
-  const r = await request.json();
-  console.log(r);
-  return NextResponse.json({ code: 0, data: { name: "abc" } });
+  try {
+    // console.log(request.form)
+    const formData = await request.formData();
+    const filename = formData.get('filename') as string
+    if (!filename) {
+      throw new Error('文件名不能为空')
+    }
+
+    const client = new OssClient();
+    // 判断目录文件是否存在
+    const exist = await client.isExist(filename)
+    if (!exist) {
+      throw new Error(`文件 [${filename}] 不存在`)
+    }
+    const demo = formData.getAll('file') as File[]
+    console.log(filename, demo[0]);
+    // fs.writeFileSync('./tset.png', demo[0])
+    return NextResponse.json({ code: 0, data: { filename } });
+  } catch (error: any) {
+    console.log(error)
+    return NextResponse.json({ code: -1, msg: error.message });
+  }
 }

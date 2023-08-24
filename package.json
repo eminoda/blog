@@ -19,6 +19,7 @@
     "eslint-config-next": "13.4.12",
     "highlight.js": "^11.8.0",
     "markdown-it": "^13.0.1",
+    "moment": "^2.29.4",
     "monaco-editor": "^0.41.0",
     "next": "13.4.12",
     "nonce-str": "^1.0.1",
