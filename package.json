@@ -17,6 +17,7 @@
     "axios": "^1.4.0",
     "eslint": "8.46.0",
     "eslint-config-next": "13.4.12",
+    "formidable": "^3.5.1",
     "highlight.js": "^11.8.0",
     "markdown-it": "^13.0.1",
     "moment": "^2.29.4",
@@ -31,6 +32,7 @@
   },
   "devDependencies": {
     "@types/ali-oss": "^6.16.8",
+    "@types/formidable": "^3.4.1",
     "@types/markdown-it": "^13.0.0",
     "sass": "^1.65.1"
   }

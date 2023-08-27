@@ -26,10 +26,10 @@ export async function POST(request: Request) {
     if (!md) {
       throw new Error('文章内容不存在')
     }
-    const filename = [isPublish ? 'post' : 'draft', date, title + '.md'].join('/')
+    const filename = [isPublish ? 'post' : 'draft', date, title, 'index.md'].join('/')
 
     const client = new OssClient();
-    
+
     const { name, url } = await client.put(filename, Buffer.from(md))
     return NextResponse.json({ code: 0, data: { md, title, date, name } });
   } catch (error: any) {

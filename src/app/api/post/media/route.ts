@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import OssClient from "@/libs/oss";
 import fs from 'fs'
+
 /**
  * 上传图片
  *
@@ -16,21 +17,37 @@ export async function POST(request: Request) {
   try {
     // console.log(request.form)
     const formData = await request.formData();
-    const filename = formData.get('filename') as string
-    if (!filename) {
-      throw new Error('文件名不能为空')
+    const fileName = formData.get('fileName') as string
+    if (!fileName) {
+      throw new Error('文件路径不能为空')
     }
 
     const client = new OssClient();
     // 判断目录文件是否存在
-    const exist = await client.isExist(filename)
+    const exist = await client.isExist(fileName)
     if (!exist) {
-      throw new Error(`文件 [${filename}] 不存在`)
+      throw new Error(`文件 [${fileName}] 不存在`)
     }
-    const demo = formData.getAll('file') as File[]
-    console.log(filename, demo[0]);
-    // fs.writeFileSync('./tset.png', demo[0])
-    return NextResponse.json({ code: 0, data: { filename } });
+    // https://github.com/vercel/next.js/discussions/48164
+
+    const result = await Promise.all(formData.getAll('file').filter((file): file is File => {
+      return typeof file == 'object'
+    }).map((file) => {
+      const mediaPath = fileName.split('/')
+      mediaPath.pop()
+      const name = [...mediaPath, file.name].join('/')
+      return new Promise(async (resolve, reject) => {
+        try {
+          const buf = await file.arrayBuffer()
+          const { name: ossName, url } = await client.put(name, Buffer.from(buf))
+          resolve(ossName)
+        } catch (error: any) {
+          reject(new Error('文件上传失败' + error.message))
+        }
+      })
+    }))
+
+    return NextResponse.json({ code: 0, data: result });
   } catch (error: any) {
     console.log(error)
     return NextResponse.json({ code: -1, msg: error.message });
