@@ -13,8 +13,7 @@ import OssClient from "@/libs/oss";
  */
 export async function GET(request: Request, { params }: { params: { permalink: string[] } }) {
   const client = new OssClient();
-  const result = await client.get("2023/01/02/test/index.md");
-  console.log(result, 123);
+  // const result = await client.get("2023/01/02/test/index.md");
   const [yyyy, mm, dd, title] = params.permalink;
   const md = MarkdownIt({
     highlight: function (str, lang) {

@@ -7,6 +7,10 @@ import MarkdownIt from "markdown-it";
 import hljs from "highlight.js";
 import "../[...post]/post.scss";
 
+// https://www.slingacademy.com/article/solving-the-window-is-not-defined-error-in-next-js/
+// https://www.learnbestcoding.com/post/61/nextjs-referenceerror-window-is-not-defined
+console.log(globalThis.window)
+
 export default function Editor() {
   const editorRef = useRef<HTMLDivElement | null>(null);
   const [codeEditor, setCodeEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null);
@@ -35,9 +39,11 @@ export default function Editor() {
   };
   // 准备编辑器环境，初始化编辑器 model
   useEffect(() => {
-    monaco.editor.setTheme("vs-dark");
-    const _textModel = monaco.editor.createModel("", "markdown");
-    setTextModel(_textModel);
+    import("monaco-editor").then((monaco) => {
+      monaco.editor.setTheme("vs-dark");
+      const _textModel = monaco.editor.createModel("", "markdown");
+      setTextModel(_textModel);
+    });
   }, []);
 
   // 初始化编辑器，加载编辑器 model
@@ -48,22 +54,23 @@ export default function Editor() {
         editorRef.current.removeChild(editorRef.current.firstChild);
       }
     }
-    const _codeEditor = monaco.editor.create(editorRef.current!, {
-      model: textModel,
-      language: "markdown",
-      automaticLayout: true,
-      fontSize: 18,
-      wordWrap: "wordWrapColumn",
-      minimap: {
-        enabled: true,
-      },
-    });
-    _codeEditor.onDidChangeModelContent(() => {
-      updatePreview();
-    });
+    import("monaco-editor").then((monaco) => {
+      const _codeEditor = monaco.editor.create(editorRef.current!, {
+        model: textModel,
+        language: "markdown",
+        automaticLayout: true,
+        fontSize: 18,
+        wordWrap: "wordWrapColumn",
+        minimap: {
+          enabled: true,
+        },
+      });
+      _codeEditor.onDidChangeModelContent(() => {
+        updatePreview();
+      });
 
-    
-    setCodeEditor(_codeEditor);
+      setCodeEditor(_codeEditor);
+    });
   }, [textModel]);
 
   // 加载草稿md，并转换md2html
