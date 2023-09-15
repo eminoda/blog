@@ -7,6 +7,7 @@ import MarkdownIt from "markdown-it";
 import hljs from "highlight.js";
 import "../[...post]/post.scss";
 import dynamic from "next/dynamic";
+import CryptoJS from "crypto-js";
 
 const EditorOnline = dynamic(() => import("@/components/EditorOnline"), { ssr: false });
 
@@ -29,10 +30,39 @@ export default function Editor() {
             return hljs.highlight(str, { language: lang }).value;
           } catch (__) {}
         }
-
         return ""; // use external default escaping
       },
     });
+    /**
+     * 图片处理逻辑
+     * 1. 提取 image 标签的原始 src 内容
+     * 非oss预览地址，即：互联网地址
+     * 2. 读取图片资源，计算图片 SHA1，转为 Blob 格式文件
+     * 3. 以 SHA1 命名，上传 Blob 文件
+     * 4. 返回 oss 预览图片地址
+     */
+    console.log(Object.keys(md.renderer.rules));
+    md.renderer.rules.image = function (tokens, idx, options, env, self) {
+      const token = tokens[idx];
+      const srcAttr = token.attrGet("src");
+      console.log(srcAttr);
+      if (srcAttr?.indexOf("oss") === -1) {
+        const originImageUrl = new URL("images/banner-12.jpeg", location.origin);
+        token.attrSet("temp-id", originImageUrl.href);
+        fetch(originImageUrl)
+          .then((response) => response.blob())
+          .then(async (blob) => {
+            // 36EF566E4B14C63BFCAAAE7196D2C15E
+            const arraybuffer = await blob.arrayBuffer();
+            const wordArray = CryptoJS.lib.WordArray.create(Array.from(new Uint8Array(arraybuffer)));
+            const md5Digest = CryptoJS.MD5(wordArray);
+            // 0123456789 做 128为md5二进制数组做base64编码 => eB5eJF1ptWaXm4bijSPyxw==
+            const ContentMD5 = CryptoJS.enc.Base64.stringify(md5Digest);
+            console.log(ContentMD5);
+          });
+      }
+      return self.renderToken(tokens, idx, options);
+    };
     return md.render(text);
   };
 
@@ -41,53 +71,8 @@ export default function Editor() {
       __html: md2Html(textModel!.getValue()),
     });
   };
-  // 准备编辑器环境，初始化编辑器 model
-  // useEffect(() => {
-  //   import("monaco-editor").then((monaco) => {
-  //     monaco.editor.setTheme("vs-dark");
-  //     const _textModel = monaco.editor.createModel("", "markdown");
-  //     setTextModel(_textModel);
-  //   });
-  // }, []);
 
-  // 初始化编辑器，加载编辑器 model
-  // useEffect(() => {
-  //   if (editorRef.current) {
-  //     // 清空编辑器
-  //     while (editorRef.current.firstChild) {
-  //       editorRef.current.removeChild(editorRef.current.firstChild);
-  //     }
-  //   }
-  //   import("monaco-editor").then((monaco) => {
-  //     const _codeEditor = monaco.editor.create(editorRef.current!, {
-  //       model: textModel,
-  //       language: "markdown",
-  //       automaticLayout: true,
-  //       fontSize: 18,
-  //       wordWrap: "wordWrapColumn",
-  //       minimap: {
-  //         enabled: true,
-  //       },
-  //     });
-  //     _codeEditor.onDidChangeModelContent(() => {
-  //       updatePreview();
-  //     });
-
-  //     setCodeEditor(_codeEditor);
-  //   });
-  // }, [textModel]);
-
-  // 加载草稿md，并转换md2html
-  // useEffect(() => {
-  //   if (codeEditor && textModel) {
-  //     axios.get("/api/post/2012/02/03/abc").then((res) => {
-  //       const { data } = res.data;
-  //       textModel!.setValue(data.md);
-  //       updatePreview();
-  //     });
-  //   }
-  // }, [codeEditor]);
-
+  // 加载 markdown 文章
   useEffect(() => {
     axios.get("/api/post/2012/02/03/abc").then((res) => {
       const { data } = res.data;
@@ -103,9 +88,12 @@ export default function Editor() {
       __html: md2Html(value),
     });
   };
+
   return (
     <div className="flex absolute w-full h-full">
-      <EditorOnline md={mdData} onChange={mdChange} />
+      <div className="basis-1/2">
+        <EditorOnline md={mdData} onChange={mdChange} />
+      </div>
       <div id="preview" className="basis-1/2 pt-10 px-10">
         <div dangerouslySetInnerHTML={htmlData}></div>
       </div>
