@@ -8,6 +8,7 @@ import hljs from "highlight.js";
 import "../[...post]/post.scss";
 import dynamic from "next/dynamic";
 import CryptoJS from "crypto-js";
+import { Button, ConfigProvider } from "antd";
 
 const EditorOnline = dynamic(() => import("@/components/EditorOnline"), { ssr: false });
 
@@ -23,7 +24,7 @@ interface ImageParse {
   originId: string;
   status: ParseStatus;
   contentMD5?: string;
-  blobUrl?: string;
+  blob?: Blob;
   priviewUrl?: string;
   originUrl?: string;
 }
@@ -45,29 +46,38 @@ export default function Editor() {
     return contentMD5;
   };
 
-  const uploadBlobToOss = async (originId: string, blob: Blob, contentMD5: string): Promise<string> => {
-    const formData = new FormData();
-    console.log(contentMD5);
-    formData.append("file", blob, originId);
-    formData.append("contentMD5", contentMD5);
-    formData.append("fileName", "/draft/2023/08/24/test/" + originId);
-    const response = await fetch("/api/post/media", {
-      method: "post",
-      body: formData,
-    });
-    const { data } = await response.json();
-    return data;
-    // const priviewUrl = "https://pic3.zhimg.com/v2-d73df22d306f557a0d3d313d78f50f84_1440w.jpg?source=172ae18b";
-    // return priviewUrl;
+  // https://react.dev/learn/updating-arrays-in-state
+  const uploadBlobToOss = async (originId: string, draftDirtory: string) => {
+    const current = imageList.find((item) => item.originId === originId);
+    if (current && current.status === ParseStatus.PARSING) {
+      const formData = new FormData();
+      formData.append("file", current.blob!, originId);
+      formData.append("contentMD5", current.contentMD5!);
+      formData.append("fileName", draftDirtory + originId);
+      const response = await fetch("/api/post/media", {
+        method: "post",
+        body: formData,
+      });
+      const { data: priviewUrl } = await response.json();
+      current.priviewUrl = priviewUrl;
+      current.status = ParseStatus.DONE;
+      document.querySelector(`img[origin-id='${originId}']`)?.setAttribute("src", current.priviewUrl!);
+
+      // const priviewUrl = "https://pic3.zhimg.com/v2-d73df22d306f557a0d3d313d78f50f84_1440w.jpg?source=172ae18b";
+      // return priviewUrl;
+
+      return current;
+    } else {
+      throw new Error("图片未解析完毕");
+    }
   };
-  const uploadImage = async (originId: string) => {
-    // TODO：上传文件到oss
+  // img 图片转 blob
+  const parseImageToHtml = async (originId: string) => {
     const current = imageList.find((item) => item.originId === originId);
     if (current && current.originUrl) {
-      // img 图片转 blob
       const response = await fetch(current.originUrl);
       const blob = await response.blob();
-      current.blobUrl = URL.createObjectURL(blob);
+      current.blob = blob;
       current.contentMD5 = await getContentMd5(blob);
       current.status = ParseStatus.PARSING;
 
@@ -76,19 +86,6 @@ export default function Editor() {
           return item.originId === originId ? current : item;
         })
       );
-
-      // https://react.dev/learn/updating-arrays-in-state
-      setTimeout(async () => {
-        const priviewUrl = await uploadBlobToOss(originId, blob, current.contentMD5!);
-        current.priviewUrl = priviewUrl;
-        current.status = ParseStatus.DONE;
-        document.querySelector(`img[origin-id='${originId}']`)?.setAttribute("src", priviewUrl);
-        setImageList(
-          imageList.map((item) => {
-            return item.originId === originId ? current : item;
-          })
-        );
-      }, 200);
     }
   };
   const md2Html = (text: string) => {
@@ -113,7 +110,7 @@ export default function Editor() {
     md.renderer.rules.image = function (tokens, idx, options, env, self) {
       const token = tokens[idx];
       const srcAttr = token.attrGet("src");
-      const originImageUrl = new URL("images/banner-12.jpeg", location.origin);
+      const originImageUrl = new URL(srcAttr!, location.origin);
       const originId = CryptoJS.MD5(originImageUrl.href).toString();
 
       // 非 oss 图片
@@ -123,9 +120,7 @@ export default function Editor() {
           token.attrSet("origin-id", originId);
           imageList.push({ originId, status: ParseStatus.ORIGIN, originUrl: originImageUrl.href });
           setImageList(imageList);
-          setTimeout(() => {
-            uploadImage(originId);
-          }, 1000);
+          parseImageToHtml(originId);
         }
       }
       return self.renderToken(tokens, idx, options);
@@ -156,16 +151,26 @@ export default function Editor() {
     });
   };
 
+  const saveDraft = async () => {
+    // TODO：新建草稿目录
+    // 图片上传oss生成临时链接
+    const list = await Promise.all(imageList.map((item) => uploadBlobToOss(item.originId, "/draft/2023/08/24/test/")));
+    setImageList(list);
+    // TODO：展示进度
+    // TODO：保存草稿 md
+  };
   return (
     <div className="flex absolute w-full h-full">
       <div className="basis-1/2">
-        {imageList.map((item, index) => {
-          return <div key={index}>{item.status}</div>;
-        })}
         <EditorOnline md={mdData} onChange={mdChange} />
       </div>
       <div id="preview" className="basis-1/2 pt-10 px-10">
         <div dangerouslySetInnerHTML={htmlData}></div>
+      </div>
+      <div className="fixed right-3.5 bottom-3.5">
+        <Button type="primary" onClick={saveDraft}>
+          保存
+        </Button>
       </div>
     </div>
   );

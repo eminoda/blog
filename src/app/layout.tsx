@@ -1,6 +1,7 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { Archivo } from "next/font/google";
+import StyledComponentsRegistry from "../components/AntdRegistry";
 const inter = Archivo({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -11,7 +12,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={inter.className}>
-      <body className="bg-gray-100">{children}</body>
+      <body className="bg-gray-100">
+        <StyledComponentsRegistry>{children}</StyledComponentsRegistry>
+      </body>
     </html>
   );
 }

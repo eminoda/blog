@@ -30,34 +30,33 @@ export async function POST(request: Request) {
     // }
     // https://github.com/vercel/next.js/discussions/48164
 
-    const result = await Promise.all(formData.getAll('file').filter((file): file is File => {
-      return typeof file == 'object'
-    }).map((file) => {
+    const file = formData.get('file') as File
+    // const result = await Promise.all(formData.get('file').filter((file): file is File => {
+    //   return typeof file == 'object'
+    // }).map((file) => {
+    if (file) {
       console.log(file)
       const mediaPath = fileName.split('/')
       mediaPath.pop()
       const name = [...mediaPath, file.name].join('/')
-      return new Promise(async (resolve, reject) => {
-        try {
-          const buf = await file.arrayBuffer()
-          const { name: ossName, url } = await client.put(name, Buffer.from(buf), {
-            headers: {
-              // https://help.aliyun.com/zh/oss/user-guide/manage-object-metadata-10#concept-lkf-swy-5db
-              'Content-Type': file.type,
-              'Content-Disposition': 'inline'
-            }
-          })
-          // https://help.aliyun.com/zh/oss/user-guide/add-watermarks
-          // https://www.alibabacloud.com/help/en/oss/developer-reference/img-5
-          const priviewUrl = await client.signatureUrl(name, { process: 'image/watermark,text_SGVsbG8gV29ybGQ' })
-          resolve(priviewUrl)
-        } catch (error: any) {
-          reject(new Error('文件上传失败' + error.message))
-        }
-      })
-    }))
 
-    return NextResponse.json({ code: 0, data: result });
+      try {
+        const buf = await file.arrayBuffer()
+        const { name: ossName, url } = await client.put(name, Buffer.from(buf), {
+          headers: {
+            // https://help.aliyun.com/zh/oss/user-guide/manage-object-metadata-10#concept-lkf-swy-5db
+            'Content-Type': file.type,
+            'Content-Disposition': 'inline'
+          }
+        })
+        // https://help.aliyun.com/zh/oss/user-guide/add-watermarks
+        // https://www.alibabacloud.com/help/en/oss/developer-reference/img-5
+        const priviewUrl = await client.signatureUrl(ossName, { process: 'image/watermark,text_5YmN56uv6Zuo54i4,resize,w_300,h_300,color_FFFFFF,size_50,shadow_50,g_se,x_40,y_40' })
+        return NextResponse.json({ code: 0, data: priviewUrl });
+      } catch (error: any) {
+        throw new Error('文件上传失败' + error.message)
+      }
+    }
   } catch (error: any) {
     console.log(error)
     return NextResponse.json({ code: -1, msg: error.message });
