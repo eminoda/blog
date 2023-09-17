@@ -33,7 +33,7 @@ export default function EditorOnline(props: { md: string; onChange: Function }) 
         props.onChange(newVal);
       });
     }
-  }, []);
+  }, [props.md]);
 
   return <div id="editor" ref={editorRef} className="basis-1/2 min-h-full"></div>;
 }

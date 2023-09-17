@@ -30,5 +30,12 @@ class OssClient {
             throw error
         }
     }
+    async signatureUrl(name: string, options?: OSS.SignatureUrlOptions) {
+        try {
+            return await this.client.signatureUrl(name, options)
+        } catch (error: any) {
+            throw error
+        }
+    }
 }
 export default OssClient

@@ -24,23 +24,33 @@ export async function POST(request: Request) {
 
     const client = new OssClient();
     // 判断目录文件是否存在
-    const exist = await client.isExist(fileName)
-    if (!exist) {
-      throw new Error(`文件 [${fileName}] 不存在`)
-    }
+    // const exist = await client.isExist(fileName)
+    // if (!exist) {
+    //   throw new Error(`文件 [${fileName}] 不存在`)
+    // }
     // https://github.com/vercel/next.js/discussions/48164
 
     const result = await Promise.all(formData.getAll('file').filter((file): file is File => {
       return typeof file == 'object'
     }).map((file) => {
+      console.log(file)
       const mediaPath = fileName.split('/')
       mediaPath.pop()
       const name = [...mediaPath, file.name].join('/')
       return new Promise(async (resolve, reject) => {
         try {
           const buf = await file.arrayBuffer()
-          const { name: ossName, url } = await client.put(name, Buffer.from(buf))
-          resolve(ossName)
+          const { name: ossName, url } = await client.put(name, Buffer.from(buf), {
+            headers: {
+              // https://help.aliyun.com/zh/oss/user-guide/manage-object-metadata-10#concept-lkf-swy-5db
+              'Content-Type': file.type,
+              'Content-Disposition': 'inline'
+            }
+          })
+          // https://help.aliyun.com/zh/oss/user-guide/add-watermarks
+          // https://www.alibabacloud.com/help/en/oss/developer-reference/img-5
+          const priviewUrl = await client.signatureUrl(name, { process: 'image/watermark,text_SGVsbG8gV29ybGQ' })
+          resolve(priviewUrl)
         } catch (error: any) {
           reject(new Error('文件上传失败' + error.message))
         }
