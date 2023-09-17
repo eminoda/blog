@@ -164,7 +164,7 @@ export default function Editor() {
       <div className="basis-1/2">
         <EditorOnline md={mdData} onChange={mdChange} />
       </div>
-      <div id="preview" className="basis-1/2 pt-10 px-10">
+      <div id="preview" className="basis-1/2 pt-10 px-10 max-h-screen overflow-auto">
         <div dangerouslySetInnerHTML={htmlData}></div>
       </div>
       <div className="fixed right-3.5 bottom-3.5">
