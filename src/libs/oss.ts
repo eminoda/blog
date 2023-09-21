@@ -10,10 +10,15 @@ class OssClient {
       bucket: process.env.alioss!.bucket,
     });
   }
-  async isExist(name: string, options?: OSS.HeadObjectOptions) {
+  async isExist(name: string, options?: OSS.HeadObjectOptions, contentMD5?: string) {
     try {
-      const headResult = await this.client.head(name, options);
-      console.log(headResult)
+      const { meta, res } = await this.client.head(name, options);
+      if (contentMD5) {
+        // Property 'content-md5' does not exist on type '{}'.ts(7053)
+        const headers = res.headers as { [key: string]: string };
+        console.log(name, headers["content-md5"]);
+        return headers["content-md5"] === contentMD5;
+      }
       return true;
     } catch (error: any) {
       if (error.code == "NoSuchKey") {

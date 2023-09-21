@@ -39,7 +39,7 @@ export async function POST(request: Request) {
       mediaPath.pop();
       const name = [...mediaPath, file.name].join("/");
 
-      const exist = await client.isExist(name);
+      const exist = await client.isExist(name, {}, formData.get("contentMD5") as string | undefined);
       console.log("exist", exist, name);
       if (exist) {
         console.log(name, "存在");

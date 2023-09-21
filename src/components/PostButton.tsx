@@ -130,6 +130,7 @@ export default function PostButton(props: { buildPreviewImage: Function; permali
                 源链接：
                 <Button type="link">{item.src}</Button>
               </div>
+              <div>Content-Md5：{item.contentMD5}</div>
               <div>解析状态：{parseProgress(item)}</div>
               {item.status === ParseStatus.DONE && <img src={item.priviewUrl} className="w-1/2 mt-2" />}
             </div>
