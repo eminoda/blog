@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import * as monaco from "monaco-editor";
 import axios from "axios";
+import { message } from "antd";
 
 export default function MonacoEditor(props: { postUrl?: string; onChange: Function }) {
   const [mdData, setMdData] = useState<string>("# 文章标题\n## 就和写Markdown一样");
@@ -36,10 +37,19 @@ export default function MonacoEditor(props: { postUrl?: string; onChange: Functi
 
     if (props.postUrl) {
       // 请求 markdown
-      axios.get("/api/post" + props.postUrl).then((res) => {
-        const { data } = res.data;
-        textModel.setValue(data.md);
-      });
+      axios
+        .get("/api/" + props.postUrl)
+        .then((res) => {
+          const { data, code } = res.data;
+          if (code === 0) {
+            textModel.setValue(data.mdData);
+          } else {
+            throw new Error(data);
+          }
+        })
+        .catch((err) => {
+          message.error(err.message);
+        });
     }
     return () => {
       editor.dispose();

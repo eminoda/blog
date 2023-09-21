@@ -27,23 +27,23 @@ const md = MarkdownIt({
 });
 
 export default function Editor() {
-  const HtmlRendererRef = createRef<HTMLDivElement>();
   const [htmlData, setHtmlData] = useState<string>("");
-  const [mdData, setMdData] = useState<string>("");
   const [imageQueue, setImageQueue] = useState<ImageParse[]>([]);
-
+  const [post] = useState({
+    permalink: "draft/2023/08/24/test",
+    mdData: "",
+  });
   // 生成文件 md5
-  const _getContentMd5 = async (blob: Blob) => {
+  const _contentMD5 = async (blob: Blob) => {
     const arraybuffer = await blob.arrayBuffer();
     const wordArray = CryptoJS.lib.WordArray.create(Array.from(new Uint8Array(arraybuffer)));
+    // const wordArray = CryptoJS.lib.WordArray.create(Array.from(("0123456789".split("").map((item, index) => "0123456789".charCodeAt(index)))));
+
     const md5Digest = CryptoJS.MD5(wordArray);
     // 0123456789 做 128为md5二进制数组做base64编码 => eB5eJF1ptWaXm4bijSPyxw==
+    console.log("md5Digest", md5Digest);
+    console.log("contentMD5", CryptoJS.enc.Base64.stringify(md5Digest));
     return CryptoJS.enc.Base64.stringify(md5Digest);
-  };
-
-  const getBlob = async (url: string): Promise<Blob> => {
-    const response = await fetch(url);
-    return response.blob();
   };
 
   const buildImageParseItem = async (id: string, imageURL: URL) => {
@@ -51,11 +51,11 @@ export default function Editor() {
       // 获取 blob
       const imageResponse = await fetch(imageURL.href);
       const blob = await imageResponse.blob();
-      const contentMd5 = await _getContentMd5(blob);
+      const contentMD5 = await _contentMD5(blob);
       const current = {
         id,
         src: imageURL.href,
-        contentMd5,
+        contentMD5,
         blob,
         status: ParseStatus.INIT,
         priviewUrl: "",
@@ -65,8 +65,6 @@ export default function Editor() {
       imageQueue.push(current);
     }
   };
-
-  const convertPreviewImageUrl = () => {};
 
   const markdown2Html = (mdData: string) => {
     md.renderer.rules.image = function (tokens, idx, options, env, self) {
@@ -89,19 +87,19 @@ export default function Editor() {
   };
 
   const onEditorChange = async (mdData: string) => {
-    setMdData(mdData);
+    post.mdData = mdData;
     const _htmlData = markdown2Html(mdData);
     setHtmlData(_htmlData);
   };
 
   // https://react.dev/learn/updating-arrays-in-state
-  const uploadBlobToOss = async (id: string, draftDirtory: string): Promise<ImageParse> => {
+  const uploadBlobToOss = async (id: string): Promise<ImageParse> => {
     const current = imageQueue.find((item) => item.id === id);
     if (current && current.status !== ParseStatus.DONE) {
       const formData = new FormData();
       formData.append("file", current.blob!, id);
       formData.append("contentMD5", current.contentMD5!);
-      formData.append("fileName", draftDirtory + id);
+      formData.append("fileName", post.permalink + "/" + id);
       const response = await fetch("/api/post/media", {
         method: "post",
         body: formData,
@@ -121,11 +119,10 @@ export default function Editor() {
   };
 
   const buildPreviewImage = async () => {
-    debugger
     await Promise.all(
       imageQueue.map((item) => {
         return new Promise(async (resolve, reject) => {
-          const imageParseItem = await uploadBlobToOss(item.id, "/draft/2023/08/24/test/");
+          const imageParseItem = await uploadBlobToOss(item.id);
           const list = imageQueue.map((_item) => (_item.id === item.id ? imageParseItem : _item));
           setImageQueue(list);
         });
@@ -134,15 +131,15 @@ export default function Editor() {
   };
 
   return (
-    <div className="flex absolute w-full h-full">
+    <div className="flex absolute w-full h-full overflow-hidden">
       <div className="basis-1/2">
-        <MonacoEditor onChange={onEditorChange} postUrl="/2012/02/03/abc" />
+        <MonacoEditor onChange={onEditorChange} postUrl={post.permalink} />
       </div>
       <div className="basis-1/2">
         <HtmlRenderer htmlData={htmlData} />
       </div>
       <div className="fixed right-4 bottom-3.5">
-        <PostButton buildPreviewImage={buildPreviewImage} imageQueue={imageQueue} permalink="/draft/2012/02/03/abc" mdData={mdData} isPublish="draft" />
+        <PostButton buildPreviewImage={buildPreviewImage} imageQueue={imageQueue} {...post} />
       </div>
     </div>
   );

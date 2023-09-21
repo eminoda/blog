@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import moment from 'moment'
+import moment from "moment";
 import OssClient from "@/libs/oss";
 
 export async function GET(request: Request) {
@@ -18,22 +18,23 @@ export async function GET(request: Request) {
  */
 export async function POST(request: Request) {
   try {
-    const currentDate = moment().format('YYYY/MM/DD')
+    const currentDate = moment().format("YYYY/MM/DD");
     const { md, title, date = currentDate, isPublish } = await request.json();
     if (!title) {
-      throw new Error('文章标题不存在')
+      throw new Error("文章标题不存在");
     }
     if (!md) {
-      throw new Error('文章内容不存在')
+      throw new Error("文章内容不存在");
     }
-    const filename = [isPublish ? 'post' : 'draft', date, title, 'index.md'].join('/')
+    // post | draft /YYYY/MM/DD/title
+    const filename = [isPublish ? "post" : "draft", date, title, "index.md"].join("/");
 
     const client = new OssClient();
-
-    const { name, url } = await client.put(filename, Buffer.from(md))
+    // const isExist = await client.isExist(filename);
+    const { name, url } = await client.put(filename, Buffer.from(md));
     return NextResponse.json({ code: 0, data: { md, title, date, name } });
   } catch (error: any) {
-    console.log(error)
+    console.log(error);
     return NextResponse.json({ code: -1, msg: error.message });
   }
 }

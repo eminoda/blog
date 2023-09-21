@@ -44,8 +44,10 @@ export default function Editor() {
     const arraybuffer = await blob.arrayBuffer();
     const wordArray = CryptoJS.lib.WordArray.create(Array.from(new Uint8Array(arraybuffer)));
     const md5Digest = CryptoJS.MD5(wordArray);
+    console.log("md5Digest", md5Digest);
     // 0123456789 做 128为md5二进制数组做base64编码 => eB5eJF1ptWaXm4bijSPyxw==
     const contentMD5 = CryptoJS.enc.Base64.stringify(md5Digest);
+    console.log("contentMD5", contentMD5);
     return contentMD5;
   };
 
@@ -215,9 +217,7 @@ export default function Editor() {
 
   return (
     <div className="flex absolute w-full h-full">
-      <div className="basis-1/2">
-        {/* <EditorOnline md={mdData} onChange={mdChange} /> */}
-      </div>
+      <div className="basis-1/2">{/* <EditorOnline md={mdData} onChange={mdChange} /> */}</div>
       <div id="preview" className="basis-1/2 pt-10 px-10 max-h-screen overflow-auto">
         <div dangerouslySetInnerHTML={htmlData}></div>
       </div>
