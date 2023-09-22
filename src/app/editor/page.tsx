@@ -29,10 +29,25 @@ const md = MarkdownIt({
 export default function Editor() {
   const [htmlData, setHtmlData] = useState<string>("");
   const [imageQueue, setImageQueue] = useState<ImageParse[]>([]);
-  const [post] = useState({
-    permalink: "draft/2023/08/24/test",
+  const [permalink, setPermalink] = useState<string>("");
+  const [editorIsReady, setEditorIsReady] = useState<Boolean>(false);
+
+  const [post, setPost] = useState({
+    permalink: "",
     mdData: "",
   });
+
+  useEffect(() => {
+    return () => {
+      console.log("clear1");
+      setPermalink("");
+    };
+  }, []);
+
+  const updatePermalink = (permalink: string) => {
+    setPermalink(permalink);
+  };
+
   // 生成文件 md5
   const _contentMD5 = async (blob: Blob) => {
     const arraybuffer = await blob.arrayBuffer();
@@ -136,16 +151,19 @@ export default function Editor() {
     );
   };
 
+  const onLoaded = (editorIsReady: boolean) => {
+    setEditorIsReady(editorIsReady);
+  };
   return (
     <div className="flex absolute w-full h-full overflow-hidden">
       <div className="basis-1/2">
-        <MonacoEditor onChange={onEditorChange} postUrl={post.permalink} />
+        <MonacoEditor onChange={onEditorChange} onLoaded={onLoaded} permalink={permalink} />
       </div>
       <div className="basis-1/2">
         <HtmlRenderer htmlData={htmlData} />
       </div>
       <div className="fixed right-4 bottom-3.5">
-        <PostButton buildPreviewImage={buildPreviewImage} imageQueue={imageQueue} {...post} />
+        <PostButton buildPreviewImage={buildPreviewImage} imageQueue={imageQueue} updatePermalink={updatePermalink} permalink={permalink} mdData={post.mdData} />
       </div>
     </div>
   );

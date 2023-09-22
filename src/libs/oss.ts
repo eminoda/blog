@@ -10,6 +10,10 @@ class OssClient {
       bucket: process.env.alioss!.bucket,
     });
   }
+  async list(query: OSS.ListObjectsQuery | null, options: OSS.RequestOptions) {
+    const { objects, prefixes, nextMarker } = await this.client.list(query, options);
+    return { objects, prefixes, nextMarker };
+  }
   async isExist(name: string, options?: OSS.HeadObjectOptions, contentMD5?: string) {
     try {
       const { meta, res } = await this.client.head(name, options);
