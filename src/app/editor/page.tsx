@@ -36,7 +36,6 @@ export default function Editor() {
   // 生成文件 md5
   const _contentMD5 = async (blob: Blob) => {
     const arraybuffer = await blob.arrayBuffer();
-    console.log(arraybuffer);
 
     const typedArray = new Uint8Array(arraybuffer);
     var typedArrayByteLength = typedArray.byteLength;
@@ -45,11 +44,11 @@ export default function Editor() {
     for (var i = 0; i < typedArrayByteLength; i++) {
       words[i >>> 2] |= typedArray[i] << (24 - (i % 4) * 8);
     }
-    const wordArray = CryptoJS.lib.WordArray.create(words,typedArrayByteLength);
+
+    const wordArray = CryptoJS.lib.WordArray.create(words, typedArrayByteLength);
     const md5Digest = CryptoJS.MD5(wordArray);
     // const wordArray = CryptoJS.enc.Utf8.parse('0123456789')
     // 0123456789 做 128为md5二进制数组做base64编码 => eB5eJF1ptWaXm4bijSPyxw==
-    console.log(md5Digest.toString(CryptoJS.enc.Base64), "Nu9WbksUxjv8qq5xltLBXg==");
     return md5Digest.toString(CryptoJS.enc.Base64);
   };
 
