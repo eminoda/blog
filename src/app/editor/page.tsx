@@ -30,6 +30,7 @@ export default function Editor() {
   const [htmlData, setHtmlData] = useState<string>("");
   const [imageQueue, setImageQueue] = useState<ImageParse[]>([]);
   const [permalink, setPermalink] = useState<string>("");
+  const [mdData, setMdData] = useState<string>("");
   const [editorIsReady, setEditorIsReady] = useState<Boolean>(false);
 
   const [post, setPost] = useState({
@@ -68,22 +69,15 @@ export default function Editor() {
   };
 
   const buildImageParseItem = async (id: string, imageURL: URL) => {
-    if (!imageQueue.find((item) => item.id === id)) {
+    // https://react.dev/learn/updating-arrays-in-state
+    const current = imageQueue.find((item) => item.id === id);
+
+    if (current) {
       // 获取 blob
       const imageResponse = await fetch(imageURL.href);
       const blob = await imageResponse.blob();
-      const contentMD5 = await _contentMD5(blob);
-      const current = {
-        id,
-        src: imageURL.href,
-        contentMD5,
-        blob,
-        status: ParseStatus.INIT,
-        priviewUrl: "",
-      };
-
-      // https://react.dev/learn/updating-arrays-in-state
-      imageQueue.push(current);
+      current.blob = blob;
+      current.contentMD5 = await _contentMD5(blob);
     }
   };
 
@@ -96,8 +90,20 @@ export default function Editor() {
         // 计算图片唯一标识
         const imageURL = new URL(srcAttr, location.origin);
         const id = CryptoJS.MD5(imageURL.href).toString();
-        // 构建图片预览队列
-        buildImageParseItem(id, imageURL);
+
+        const current = {
+          id,
+          blob: undefined,
+          src: imageURL.href,
+          status: ParseStatus.INIT,
+          priviewUrl: "",
+        };
+        console.log(current, imageQueue);
+        if (!imageQueue.find((item) => item.id === id)) {
+          imageQueue.push(current);
+          // 构建图片预览队列
+          buildImageParseItem(id, imageURL);
+        }
 
         token.attrSet("id", id);
       }
@@ -108,7 +114,7 @@ export default function Editor() {
   };
 
   const onEditorChange = async (mdData: string) => {
-    post.mdData = mdData;
+    setMdData(mdData);
     const _htmlData = markdown2Html(mdData);
     setHtmlData(_htmlData);
   };
@@ -120,7 +126,7 @@ export default function Editor() {
       const formData = new FormData();
       formData.append("file", current.blob!, id);
       formData.append("contentMD5", current.contentMD5!);
-      formData.append("fileName", post.permalink + "/" + id);
+      formData.append("fileName", permalink + "/" + id);
       const response = await fetch("/api/post/media", {
         method: "post",
         body: formData,
@@ -163,7 +169,7 @@ export default function Editor() {
         <HtmlRenderer htmlData={htmlData} />
       </div>
       <div className="fixed right-4 bottom-3.5">
-        <PostButton buildPreviewImage={buildPreviewImage} imageQueue={imageQueue} updatePermalink={updatePermalink} permalink={permalink} mdData={post.mdData} />
+        <PostButton buildPreviewImage={buildPreviewImage} imageQueue={imageQueue} updatePermalink={updatePermalink} permalink={permalink} mdData={mdData} />
       </div>
     </div>
   );

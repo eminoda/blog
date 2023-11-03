@@ -14,6 +14,6 @@ interface ImageParse {
   src: string;
   status: ParseStatus;
   contentMD5?: string;
-  blob: Blob;
+  blob?: Blob;
   priviewUrl?: string;
 }
